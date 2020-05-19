@@ -1,0 +1,90 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url = "***"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id        String    @id @default(cuid())
+  username  String    @unique
+  email     String    @unique
+  password  String
+  role      Role      @default(USER)
+  decks     Deck[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt()
+}
+
+model NoteType {
+  id          String      @id @default(cuid()) 
+  name        String
+  fields      String[]
+  cardTypes   CardType[]
+  notes       Note[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt()
+}
+
+model CardType {
+  id          String   @id @default(cuid())
+  name        String
+  front       String
+  back        String
+  noteType    NoteType @relation(fields: [noteTypeId], references: [id])
+  noteTypeId  String
+  cards       Card[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt()
+}
+
+model Note {
+  id          String      @id @default(cuid())
+  fields      FieldData[]
+  cards       Card[]
+  type        NoteType    @relation(fields: [typeId], references: [id])
+  typeId      String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt()
+}
+
+model FieldData {
+  id        String    @id @default(cuid())
+  fieldName String    @unique
+  value     String
+  note      Note      @relation(fields: [noteId], references: [id])
+  noteId    String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt()
+}
+
+model Card {
+  id        String    @id @default(cuid())
+  due       DateTime  @default(now())
+  deck      Deck      @relation(fields: [deckId], references: [id])
+  deckId    String
+  note      Note      @relation(fields: [noteId], references: [id])
+  noteId    String
+  type      CardType  @relation(fields: [typeId], references: [id])
+  typeId    String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt()
+}
+
+model Deck {
+  id        String  @id @default(cuid())
+  name      String
+  cards     Card[]
+  user      User    @relation(fields: [userId], references: [id])
+  userId    String
+}
