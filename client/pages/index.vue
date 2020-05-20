@@ -1,39 +1,20 @@
 <template>
   <div class="container">
-    <div>
-      <logo />
-      <h1 class="title">
-        memory-client
-      </h1>
-      <h2 class="subtitle">
-        My polished Nuxt.js project
-      </h2>
-      <div class="links">
-        <a
-          href="https://nuxtjs.org/"
-          target="_blank"
-          class="button--green"
-        >
-          Documentation
-        </a>
-        <a
-          href="https://github.com/nuxt/nuxt.js"
-          target="_blank"
-          class="button--grey"
-        >
-          GitHub
-        </a>
-      </div>
-    </div>
+    Hello, World!
   </div>
 </template>
 
 <script>
-import Logo from '~/components/Logo.vue'
-
 export default {
-  components: {
-    Logo
+  async mounted () {
+    try {
+      const currentUser = await this.$api.get('/test')
+
+      console.log(currentUser)
+    } catch (e) {
+      console.log('Something went wrong:', e)
+      console.log('Code:', e.code)
+    }
   }
 }
 </script>
