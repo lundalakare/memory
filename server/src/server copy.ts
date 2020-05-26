@@ -4,9 +4,9 @@ import { auth, requiresAuth } from 'express-openid-connect'
 import cors from 'cors'
 import createError, { HttpError } from 'http-errors'
 import jsonApi from 'ts-json-api'
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, UserDelegate, User } from '@prisma/client'
 
-import { JsonApi } from './jsonApi/JsonApi'
+import { buildJsonApi, RelationshipType } from './jsonApi/JsonApi'
 import { checkEnv } from './util'
 
 function createServer () {
@@ -31,81 +31,73 @@ function createServer () {
   // Enable CORS
   app.use(cors())
 
-  const jsonApi = new JsonApi({
-    basePath: '/jsonapi'
-  })
+  app.use('/jsonapi', buildJsonApi({
+    basePath: '/jsonapi',
+    resources: {
+      users: {
+        attributes: ['username', 'email', 'role'],
+        relationships: {
+          decks: {
+            type: RelationshipType.ToMany,
+            related: 'decks'
+          }
+        },
+        dataSource: {
+          findOne (id: string) {
+            return prisma.user.findOne({
+              where: { id }
+            })
+          },
+          findMany () {
+            return prisma.user.findMany()
+          },
+          async findRelated (id: string, relationship: string) {
+            const user = await prisma.user
+              .findOne({
+                where: { id },
+                include: {
+                  [relationship]: true
+                }
+              })
 
-  jsonApi.resource({
-    name: 'users',
-    attributes: {
-      username: {},
-      email: {},
-      role: {}
-    },
-    relationships: {
+            return user[relationship]
+          }
+        }
+      },
       decks: {
-        resource: 'decks'
-      }
-    },
-    dataSource: {
-      findOne (id: string) {
-        return prisma.user.findOne({
-          where: { id }
-        })
-      },
-      findMany () {
-        return prisma.user.findMany()
-      },
-      async findRelated (id: string, relationship: string) {
-        const user = await prisma.user
-          .findOne({
-            where: { id },
-            include: {
-              [relationship]: true
-            }
-          })
+        attributes: ['name'],
+        relationships: {
+          user: {
+            type: RelationshipType.ToOne,
+            related: 'users'
+          }
+        },
+        dataSource: {
+          findOne (id: string) {
+            return prisma.deck.findOne({
+              where: { id }
+            })
+          },
+          findMany () {
+            return prisma.deck.findMany()
+          },
+          async findRelated (id: string, relationship: string) {
+            const deck = await prisma.deck
+              .findOne({
+                where: { id },
+                include: {
+                  [relationship]: true
+                }
+              })
 
-        return user[relationship]
-      }
+            return deck[relationship]
+          }
+        }
+      },
     }
-  })
+  }))
 
-  jsonApi.resource({
-    name: 'decks',
-    attributes: {
-      name: {}
-    },
-    relationships: {
-      user: {
-        resource: 'users'
-      }
-    },
-    dataSource: {
-      findOne (id: string) {
-        return prisma.deck.findOne({
-          where: { id }
-        })
-      },
-      findMany () {
-        return prisma.deck.findMany()
-      },
-      async findRelated (id: string, relationship: string) {
-        const deck = await prisma.deck
-          .findOne({
-            where: { id },
-            include: {
-              [relationship]: true
-            }
-          })
-
-        return deck[relationship]
-      }
-    }
-  })
-
-  app.use('/jsonapi', jsonApi.handler())
-
-  app.get('/', (req, res) => {
+  app.get('/', (req, res, next) => {
     res.send(req.isAuthenticated() ? 'Logged in' : 'Logged out')
   })
 
@@ -116,7 +108,7 @@ function createServer () {
   /**
    * Catch all if no route was matched. Just throw 404
    */
-  app.use((req, res) => {
+  app.use((req, res, next) => {
     throw createError(404)
   })
   
