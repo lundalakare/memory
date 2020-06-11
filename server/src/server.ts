@@ -3,15 +3,21 @@ import express from 'express'
 import cors from 'cors'
 import createError, { HttpError } from 'http-errors'
 
+import { createApi } from './api/api'
+
 // import { PrismaClient } from '@prisma/client'
 
-function createServer () {
+async function createServer () {
   // const prisma = new PrismaClient()
+
+  const api = await createApi()
 
   const app = express()
 
   // Enable CORS
   app.use(cors())
+
+  app.use('/api', api)
 
   app.get('/test', (req, res, next) => {
     // Feeling for some tea? https://httpstatuses.com/418
@@ -43,6 +49,15 @@ function createServer () {
     if (error.statusCode >= 500) {
       console.error(error)
     }
+
+    let detail: string = null
+    if (error.statusCode === 405) {
+      const headers = res.getHeaders()
+      
+      if (headers.allow) {
+        detail = `Allowed methods: ${headers.allow}`
+      }
+    }
   
     // Send the error with the appropriate status code and body.
     res
@@ -50,7 +65,8 @@ function createServer () {
       .json({
         error: {
           name: error.name,
-          message: error.message
+          message: error.message,
+          detail
         }
       })
   })
