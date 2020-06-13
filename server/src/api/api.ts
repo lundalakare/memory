@@ -3,6 +3,7 @@ import { promises as fs} from 'fs'
 
 import express from 'express'
 import createError from 'http-errors'
+import { describe } from './describe'
 
 const FAMILIES_PATH = path.join(__dirname, './families')
 
@@ -52,6 +53,10 @@ async function getMethods () {
 
 export async function createApi () {
   const methods = await getMethods()
+
+  const description = describe(methods)
+
+  console.log(description)
   
   return function (req: express.Request, res: express.Response, next: express.NextFunction) {
     const method = methods[req.path.substring(1)]
