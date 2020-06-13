@@ -3,20 +3,24 @@ import express from 'express'
 import cors from 'cors'
 import createError, { HttpError } from 'http-errors'
 
-// import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '@prisma/client'
+
+import { router } from './router'
 
 function createServer () {
-  // const prisma = new PrismaClient()
-
   const app = express()
+
+  const prisma = new PrismaClient()
 
   // Enable CORS
   app.use(cors())
 
-  app.get('/test', (req, res, next) => {
-    // Feeling for some tea? https://httpstatuses.com/418
-    throw createError(418)
+  app.use((req, res, next) => {
+    req.prisma = prisma
+    next()
   })
+
+  app.use(router)
 
   /**
    * Catch all if no route was matched. Just throw 404
@@ -41,7 +45,7 @@ function createServer () {
     // If this is a severe error, log it.
     // TODO: Implement proper logging solution.
     if (error.statusCode >= 500) {
-      console.error(error)
+      console.error(err)
     }
   
     // Send the error with the appropriate status code and body.
