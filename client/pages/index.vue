@@ -1,11 +1,35 @@
 <template>
   <div class="container">
-    Hello, World!
+    <b-table :fields="fields" :items="decks" hover borderless>
+      <template v-slot:cell(link)="data">
+        <nuxt-link :to="{ name: 'deck-id', params: { id: data.item.id } }">
+          {{ data.item.name }}
+        </nuxt-link>
+      </template>
+    </b-table>
   </div>
 </template>
 
 <script>
 export default {
+  data: () => ({
+    fields: [
+      { key: 'link', label: 'Name' },
+      'due'
+    ],
+    decks: [
+      {
+        id: '1',
+        name: 'French 101',
+        due: 13
+      },
+      {
+        id: '2',
+        name: 'Mikrobiologi',
+        due: 2
+      }
+    ]
+  }),
   async mounted () {
     try {
       const currentUser = await this.$api.get('/test')
@@ -21,33 +45,6 @@ export default {
 
 <style>
 .container {
-  margin: 0 auto;
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-}
-
-.title {
-  font-family: 'Quicksand', 'Source Sans Pro', -apple-system, BlinkMacSystemFont,
-    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  display: block;
-  font-weight: 300;
-  font-size: 100px;
-  color: #35495e;
-  letter-spacing: 1px;
-}
-
-.subtitle {
-  font-weight: 300;
-  font-size: 42px;
-  color: #526488;
-  word-spacing: 5px;
-  padding-bottom: 15px;
-}
-
-.links {
-  padding-top: 15px;
+  padding-top: 1em;
 }
 </style>

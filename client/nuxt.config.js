@@ -44,8 +44,11 @@ export default {
     // Doc: https://axios.nuxtjs.org/usage
     '@nuxtjs/axios',
     '@nuxtjs/pwa',
-    ['nuxt-sass-resources-loader', 'bootstrap/scss/bootstrap.scss']
+    'bootstrap-vue/nuxt'
   ],
+  bootstrapVue: {
+    icons: true
+  },
   /*
   ** Axios module configuration
   ** See https://axios.nuxtjs.org/options
