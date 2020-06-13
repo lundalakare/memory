@@ -1,0 +1,194 @@
+{
+  "version": "0.3.14-fixed",
+  "steps": [
+    {
+      "tag": "CreateField",
+      "model": "User",
+      "field": "noteTypes",
+      "type": "NoteType",
+      "arity": "List"
+    },
+    {
+      "tag": "CreateField",
+      "model": "NoteType",
+      "field": "user",
+      "type": "User",
+      "arity": "Required"
+    },
+    {
+      "tag": "CreateDirective",
+      "location": {
+        "path": {
+          "tag": "Field",
+          "model": "NoteType",
+          "field": "user"
+        },
+        "directive": "relation"
+      }
+    },
+    {
+      "tag": "CreateArgument",
+      "location": {
+        "tag": "Directive",
+        "path": {
+          "tag": "Field",
+          "model": "NoteType",
+          "field": "user"
+        },
+        "directive": "relation"
+      },
+      "argument": "fields",
+      "value": "[userId]"
+    },
+    {
+      "tag": "CreateArgument",
+      "location": {
+        "tag": "Directive",
+        "path": {
+          "tag": "Field",
+          "model": "NoteType",
+          "field": "user"
+        },
+        "directive": "relation"
+      },
+      "argument": "references",
+      "value": "[id]"
+    },
+    {
+      "tag": "CreateField",
+      "model": "NoteType",
+      "field": "userId",
+      "type": "String",
+      "arity": "Required"
+    },
+    {
+      "tag": "DeleteField",
+      "model": "CardType",
+      "field": "cards"
+    },
+    {
+      "tag": "CreateField",
+      "model": "Note",
+      "field": "fieldData",
+      "type": "FieldData",
+      "arity": "List"
+    },
+    {
+      "tag": "CreateField",
+      "model": "Note",
+      "field": "deck",
+      "type": "Deck",
+      "arity": "Required"
+    },
+    {
+      "tag": "CreateDirective",
+      "location": {
+        "path": {
+          "tag": "Field",
+          "model": "Note",
+          "field": "deck"
+        },
+        "directive": "relation"
+      }
+    },
+    {
+      "tag": "CreateArgument",
+      "location": {
+        "tag": "Directive",
+        "path": {
+          "tag": "Field",
+          "model": "Note",
+          "field": "deck"
+        },
+        "directive": "relation"
+      },
+      "argument": "fields",
+      "value": "[deckId]"
+    },
+    {
+      "tag": "CreateArgument",
+      "location": {
+        "tag": "Directive",
+        "path": {
+          "tag": "Field",
+          "model": "Note",
+          "field": "deck"
+        },
+        "directive": "relation"
+      },
+      "argument": "references",
+      "value": "[id]"
+    },
+    {
+      "tag": "CreateField",
+      "model": "Note",
+      "field": "deckId",
+      "type": "String",
+      "arity": "Required"
+    },
+    {
+      "tag": "DeleteField",
+      "model": "Note",
+      "field": "fields"
+    },
+    {
+      "tag": "DeleteDirective",
+      "location": {
+        "path": {
+          "tag": "Field",
+          "model": "FieldData",
+          "field": "fieldName"
+        },
+        "directive": "unique"
+      }
+    },
+    {
+      "tag": "CreateDirective",
+      "location": {
+        "path": {
+          "tag": "Model",
+          "model": "FieldData",
+          "arguments": [
+            {
+              "name": "",
+              "value": "[fieldName, noteId]"
+            }
+          ]
+        },
+        "directive": "unique"
+      }
+    },
+    {
+      "tag": "DeleteField",
+      "model": "Card",
+      "field": "deck"
+    },
+    {
+      "tag": "DeleteField",
+      "model": "Card",
+      "field": "deckId"
+    },
+    {
+      "tag": "DeleteField",
+      "model": "Card",
+      "field": "type"
+    },
+    {
+      "tag": "DeleteField",
+      "model": "Card",
+      "field": "typeId"
+    },
+    {
+      "tag": "CreateField",
+      "model": "Deck",
+      "field": "notes",
+      "type": "Note",
+      "arity": "List"
+    },
+    {
+      "tag": "DeleteField",
+      "model": "Deck",
+      "field": "cards"
+    }
+  ]
+}
