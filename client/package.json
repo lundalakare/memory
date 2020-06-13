@@ -17,7 +17,8 @@
     "@nuxtjs/pwa": "^3.0.0-0",
     "bootstrap-vue": "^2.15.0",
     "nuxt": "^2.0.0",
-    "nuxt-sass-resources-loader": "^2.0.5"
+    "nuxt-sass-resources-loader": "^2.0.5",
+    "nuxt-vue-select": "^0.1.4"
   },
   "devDependencies": {
     "@nuxtjs/eslint-config": "^2.0.0",

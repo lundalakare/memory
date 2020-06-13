@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div class="row mb-2">
+    <div class="row">
       <div class="col">
         <h3>{{ name }}</h3>
       </div>
@@ -10,11 +10,17 @@
           Study
         </nuxt-link>
 
+        <button v-b-modal.create-note-modal class="btn btn-outline-primary float-right">
+          Add
+        </button>
+
         <button class="btn btn-outline-secondary float-right">
           <b-icon-pencil />
         </button>
       </div>
     </div>
+
+    <CreateNoteModal />
 
     <b-table :fields="fields" :items="cards" hover borderless>
       <template v-slot:cell(sortField)="data">
@@ -29,7 +35,12 @@
 </template>
 
 <script>
+import CreateNoteModal from '~/components/CreateNoteModal'
+
 export default {
+  components: {
+    CreateNoteModal
+  },
   data: () => ({
     name: 'Patogenes',
     fields: [
