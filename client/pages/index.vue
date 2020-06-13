@@ -3,7 +3,7 @@
     <div id="hero" class="card">
       <div class="card-body">
         <h1 class="display-4">
-          Hack your brain.
+          Hack your brain
         </h1>
 
         <h3 class="mb-4">
@@ -38,7 +38,9 @@
       </div>
     </section>
 
-    <p>Medlund Education AB</p>
+    <p>© Medlund Education AB</p>
+
+    <p>Icons made by <a href="https://www.flaticon.com/authors/smashicons" title="Smashicons">Smashicons</a> from <a href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com</a></p>
   </div>
 </template>
 
@@ -53,6 +55,10 @@ export default {
       {
         name: 'Patogenes',
         description: 'High-Yield facts from the pathology course. Includes cardiovascular, nephrology, oncology, and neurology.'
+      },
+      {
+        name: 'Mikrobiologi',
+        description: 'Learn all about the microorganisms living everywhere around you.'
       }
     ]
   })
@@ -63,6 +69,10 @@ export default {
 #hero {
   border-color: #007bff;
   background-color: #007bff;
+  background-image: url('~assets/brain.svg');
+  background-repeat: no-repeat;
+  background-position: right;
+  background-size: auto;
   color: white;
   margin-bottom: 1em;
 }

@@ -15,7 +15,7 @@
     <div class="actions">
       <div v-if="!exposed">
         <button class="btn btn-primary" @click="exposed = true">
-          Show answer
+          Show Answer
         </button>
       </div>
 

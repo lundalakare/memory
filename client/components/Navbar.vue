@@ -29,7 +29,7 @@
           </b-dropdown-item>
 
           <b-dropdown-item>
-            Log out
+            Log Out
           </b-dropdown-item>
         </b-nav-item-dropdown>
       </b-navbar-nav>

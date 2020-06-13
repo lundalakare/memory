@@ -1,7 +1,7 @@
 <template>
-  <b-modal id="create-note-modal" v-model="show" title="Add">
+  <b-modal id="create-note-modal" v-model="show" title="Add Note">
     <div class="form-group">
-      <v-select v-model="selectedNoteType" :options="noteTypes" label="name" />
+      <v-select v-model="selectedNoteType" :options="noteTypes" label="name" placeholder="Note Type" />
     </div>
 
     <div v-if="selectedNoteType">
@@ -13,12 +13,12 @@
     </div>
 
     <template v-slot:modal-footer="{ cancel }">
-      <button class="btn btn-secondary" @click="cancel">
+      <button class="btn btn-outline-secondary" @click="cancel">
         Cancel
       </button>
 
       <button class="btn btn-primary" @click="create">
-        Create
+        Add
       </button>
     </template>
   </b-modal>

@@ -1,8 +1,8 @@
 <template>
   <div class="container">
-    <div class="row">
+    <div class="row mb-2">
       <div class="col actions">
-        <button class="btn btn-primary float-right">
+        <button v-b-modal.study-modal class="btn btn-primary float-right">
           Study
         </button>
 
@@ -13,11 +13,12 @@
     </div>
 
     <CreateDeckModal @created="decks.push($event)" />
+    <StudyModal />
 
     <b-table :fields="fields" :items="decks" hover borderless>
-      <template v-slot:cell(link)="data">
+      <template v-slot:cell(name)="data">
         <nuxt-link :to="{ name: 'deck-id', params: { id: data.item.id } }">
-          {{ data.item.name }}
+          {{ data.value }}
         </nuxt-link>
       </template>
     </b-table>
@@ -26,15 +27,17 @@
 
 <script>
 import CreateDeckModal from '~/components/CreateDeckModal'
+import StudyModal from '~/components/StudyModal'
 
 export default {
   components: {
-    CreateDeckModal
+    CreateDeckModal,
+    StudyModal
   },
   data: () => ({
     fields: [
-      { key: 'link', label: 'Name' },
-      'due'
+      { key: 'name', label: 'Deck', sortable: true },
+      { key: 'due', sortable: true }
     ],
     decks: [
       {

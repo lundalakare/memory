@@ -7,7 +7,7 @@
     </div>
 
     <template v-slot:modal-footer="{ cancel }">
-      <button class="btn btn-secondary" @click="cancel">
+      <button class="btn btn-outline-secondary" @click="cancel">
         Cancel
       </button>
 

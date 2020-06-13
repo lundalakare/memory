@@ -2,7 +2,7 @@
   <div class="container">
     <div class="row">
       <div class="col">
-        <nuxt-link to="/note-types/create" class="btn btn-outline-primary float-right">
+        <nuxt-link to="/note-types/create" class="btn btn-primary float-right">
           Create Note Type
         </nuxt-link>
       </div>
