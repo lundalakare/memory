@@ -13,9 +13,9 @@
         Cancel
       </button>
 
-      <button class="btn btn-primary">
+      <nuxt-link to="/study" class="btn btn-primary">
         Start
-      </button>
+      </nuxt-link>
     </template>
   </b-modal>
 </template>
