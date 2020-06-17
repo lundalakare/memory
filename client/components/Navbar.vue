@@ -8,12 +8,8 @@
 
     <b-collapse id="nav-collapse" is-nav>
       <b-navbar-nav>
-        <b-nav-item to="/">
+        <b-nav-item to="/decks">
           Decks
-        </b-nav-item>
-
-        <b-nav-item to="/study">
-          Study
         </b-nav-item>
       </b-navbar-nav>
 
@@ -21,15 +17,19 @@
       <b-navbar-nav class="ml-auto">
         <b-nav-item-dropdown right>
           <template v-slot:button-content>
-            User
+            johndoe
           </template>
 
-          <b-dropdown-item>
+          <b-dropdown-item to="/profile">
             Profile
           </b-dropdown-item>
 
+          <b-dropdown-item to="/note-types">
+            Note Types
+          </b-dropdown-item>
+
           <b-dropdown-item>
-            Log out
+            Log Out
           </b-dropdown-item>
         </b-nav-item-dropdown>
       </b-navbar-nav>
@@ -43,6 +43,8 @@ export default {
 }
 </script>
 
-<style>
-
+<style lang="scss" scoped>
+.nav-link.nuxt-link-exact-active {
+  color: rgba(0, 0, 0, 0.9) !important;
+}
 </style>
