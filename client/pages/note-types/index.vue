@@ -13,7 +13,7 @@
         {{ data.value.join(', ') }}
       </template>
 
-      <template v-slot:cell(cardTypes)="data">
+      <template v-slot:cell(templates)="data">
         {{ data.value.length }}
       </template>
     </b-table>
@@ -26,13 +26,13 @@ export default {
     fields: [
       'name',
       'fields',
-      'cardTypes'
+      'templates'
     ],
     noteTypes: [
       {
         name: 'Basic',
         fields: ['Front', 'Back'],
-        cardTypes: [
+        templates: [
           {
             front: '{{Front}}',
             back: '{{FrontSide}}<hr>{{Back}}'
@@ -42,7 +42,7 @@ export default {
       {
         name: 'Basic (and reversed)',
         fields: ['Front', 'Back'],
-        cardTypes: [
+        templates: [
           {
             front: '{{Front}}',
             back: '{{FrontSide}}<hr>{{Back}}'
