@@ -1,10 +1,10 @@
 <template>
   <div class="container">
     <div class="row mb-2">
-      <div v-if="!editingName" class="col">
+      <div v-if="!editing" class="col">
         <h3 class="mb-0">
           {{ name }}
-          <button class="btn btn-link" @click="editingName = true">
+          <button class="btn btn-link" @click="editing = true">
             <b-icon-pencil />
           </button>
         </h3>
@@ -15,7 +15,7 @@
           <input v-model="name" type="text" class="form-control" placeholder="Deck Name">
 
           <div class="input-group-append">
-            <button class="btn btn-outline-primary" type="button" @click="editingName = false">
+            <button class="btn btn-outline-primary" type="button" @click="editing = false">
               <b-icon-check />
             </button>
           </div>
@@ -28,21 +28,19 @@
         </nuxt-link>
 
         <button v-b-modal.create-note-modal class="btn btn-outline-primary float-right">
-          Add Note
+          Create Note
         </button>
       </div>
     </div>
 
-    <CreateNoteModal />
+    <CreateNoteModal @created="createCards($event)" />
+    <EditNoteModal v-if="selectedNote" :note="selectedNote" />
 
     <b-table
       :fields="fields"
       :items="cards"
       hover
       borderless
-      selectable
-      select-mode="single"
-      @row-selected="onRowSelected"
     >
       <template v-slot:cell(ordinal)="data">
         Card {{ data.value + 1 }}
@@ -59,37 +57,84 @@
 
 <script>
 import CreateNoteModal from '~/components/CreateNoteModal'
+import EditNoteModal from '~/components/EditNoteModal'
 
 export default {
   components: {
-    CreateNoteModal
+    CreateNoteModal,
+    EditNoteModal
   },
   data: () => ({
     name: 'Patogenes',
-    editingName: false,
+    editing: false,
     fields: [
       { key: 'frontSide', label: 'Preview', sortable: true },
-      { key: 'ordinal', label: 'Card', sortable: true },
       { key: 'due', sortable: true }
     ],
-    cards: [
+    notes: [
       {
-        frontSide: 'NT-proBNP används vid diagnostik av [...].',
-        backSide: 'NT-proBNP används vid diagnostik av hjärtsvikt.',
-        ordinal: 0,
-        due: '2020-07-10'
-      },
-      {
-        frontSide: '[...] används vid diagnostik av hjärtsvikt.',
-        backSide: 'NT-proBNP används vid diagnostik av hjärtsvikt.',
-        ordinal: 1,
-        due: '2020-07-11'
+        id: 'o829ejnejkdnas',
+        fields: {
+          Front: 'Bonjour',
+          Back: 'Hello'
+        },
+        type: {
+          fields: ['Front', 'Back'],
+          templates: [
+            {
+              id: '2784rhjwdfas',
+              name: 'Front -> Back',
+              frontSide: '{{Front}}',
+              backSide: '{{FrontSide}}<hr>{{Back}}'
+            },
+            {
+              id: 'r9i0wfjwnlks',
+              name: 'Back -> Front',
+              frontSide: '{{Back}}',
+              backSide: '{{FrontSide}}<hr>{{Front}}'
+            }
+          ]
+        },
+        cards: [
+          {
+            templateId: '2784rhjwdfas',
+            due: '2020-06-25'
+          },
+          {
+            templateId: 'r9i0wfjwnlks',
+            due: '2020-06-25'
+          }
+        ]
       }
-    ]
+    ],
+    cards: [],
+    selectedNote: null
   }),
-  methods: {
-    onRowSelected () {
+  created () {
+    const cards = this.notes.map((note) => {
+      return note.cards.map((card) => {
+        const template = note.type.templates.find(x => x.id === card.templateId)
 
+        return {
+          noteId: note.id,
+          due: card.due,
+          frontSide: this.replace(template.frontSide, note.fields),
+          backSide: this.replace(template.backSide, note.fields)
+        }
+      })
+    })
+    this.cards = cards.flat()
+  },
+  methods: {
+    onRowSelected (items) {
+      this.selectedNote = this.notes.find(x => x.id === items[0].noteId)
+      this.$bvModal.show('edit-note-modal')
+    },
+    replace (template, fields) {
+      for (const field in fields) {
+        template = template.replace(new RegExp(`{{${field}}}`, 'g'), fields[field])
+      }
+      return template
     }
   }
 }

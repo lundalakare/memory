@@ -50,48 +50,48 @@
       <div class="card-body">
         <div class="row mb-3">
           <div class="col">
-            <h5>Card Types ({{ cardTypes.length }})</h5>
+            <h5>Templates ({{ templates.length }})</h5>
           </div>
 
           <div class="col">
-            <button v-b-modal.create-card-type-modal class="btn btn-outline-primary float-right">
+            <button v-b-modal.create-template-modal class="btn btn-outline-primary float-right">
               Create
             </button>
           </div>
         </div>
 
-        <CreateCardTypeModal @created="cardTypes.push($event)" />
+        <CreateTemplateModal @created="templates.push($event)" />
 
         <div class="d-flex">
           <div class="form-group flex-grow-1">
-            <v-select v-model="selectedCardType" :options="cardTypes" label="name" placeholder="Card Type" />
+            <v-select v-model="selectedTemplate" :options="templates" label="name" placeholder="Template" />
           </div>
 
-          <div v-if="selectedCardType">
-            <button class="btn btn-link" @click="deleteSelectedCardType">
+          <div v-if="selectedTemplate">
+            <button class="btn btn-link" @click="deleteSelectedTemplate">
               <b-icon-trash />
             </button>
           </div>
         </div>
 
-        <div v-if="selectedCardType" class="row">
+        <div v-if="selectedTemplate" class="row">
           <div class="col">
             <div class="form-group">
               <label for="name">Name</label>
 
-              <input id="name" v-model="selectedCardType.name" type="text" class="form-control">
+              <input id="name" v-model="selectedTemplate.name" type="text" class="form-control">
             </div>
 
             <div class="form-group">
               <label for="front-side">Front Side</label>
 
-              <textarea id="front-side" v-model="selectedCardType.frontSide" class="form-control" rows="5" />
+              <textarea id="front-side" v-model="selectedTemplate.frontSide" class="form-control" rows="5" />
             </div>
 
             <div class="form-group">
               <label for="back-side">Back Side</label>
 
-              <textarea id="back-side" v-model="selectedCardType.backSide" class="form-control" rows="5" />
+              <textarea id="back-side" v-model="selectedTemplate.backSide" class="form-control" rows="5" />
             </div>
           </div>
 
@@ -104,7 +104,7 @@
                   Front Side
                 </div>
 
-                <div class="card-body" v-html="selectedCardType.frontSide" />
+                <div class="card-body" v-html="selectedTemplate.frontSide" />
               </div>
 
               <div v-else>
@@ -112,7 +112,7 @@
                   Back Side
                 </div>
 
-                <div class="card-body" v-html="selectedCardType.backSide" />
+                <div class="card-body" v-html="selectedTemplate.backSide" />
               </div>
             </div>
           </div>
@@ -127,11 +127,11 @@
 </template>
 
 <script>
-import CreateCardTypeModal from '~/components/CreateCardTypeModal'
+import CreateTemplateModal from '~/components/CreateTemplateModal'
 
 export default {
   components: {
-    CreateCardTypeModal
+    CreateTemplateModal
   },
   data: () => ({
     name: '',
@@ -149,7 +149,7 @@ export default {
       }
     ],
     newFieldName: '',
-    cardTypes: [
+    templates: [
       {
         name: 'Front -> Back',
         frontSide: '{{Front}}',
@@ -161,7 +161,7 @@ export default {
         backSide: '{{FrontSide}}<hr>{{Front}}'
       }
     ],
-    selectedCardType: null,
+    selectedTemplate: null,
     previewFrontSide: true
   }),
   methods: {
@@ -178,10 +178,10 @@ export default {
     decrementIndex (index) {
       this.fields.splice(index - 1, 0, this.fields.splice(index, 1)[0])
     },
-    deleteSelectedCardType () {
-      const index = this.cardTypes.indexOf(this.selectedCardType)
-      this.cardTypes.splice(index, 1)
-      this.selectedCardType = null
+    deleteSelectedTemplate () {
+      const index = this.templates.indexOf(this.selectedTemplate)
+      this.templates.splice(index, 1)
+      this.selectedTemplate = null
     }
   }
 }

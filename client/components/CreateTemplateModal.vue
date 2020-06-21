@@ -1,5 +1,5 @@
 <template>
-  <b-modal id="create-card-type-modal" v-model="show" title="Create Card Type">
+  <b-modal id="create-template-modal" v-model="show" title="Create Template">
     <div class="form-group">
       <label for="name">Name</label>
 
@@ -40,13 +40,13 @@ export default {
   }),
   methods: {
     create () {
-      const cardType = {
+      const template = {
         name: this.name,
         frontSide: this.frontSide,
         backSide: this.backSide
       }
 
-      this.$emit('created', cardType)
+      this.$emit('created', template)
 
       this.show = false
       this.name = ''

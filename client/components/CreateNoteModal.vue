@@ -1,15 +1,11 @@
 <template>
-  <b-modal id="create-note-modal" v-model="show" title="Add Note">
+  <b-modal id="create-note-modal" v-model="show" title="Create Note">
     <div class="form-group">
       <v-select v-model="selectedNoteType" :options="noteTypes" label="name" placeholder="Note Type" />
     </div>
 
     <div v-if="selectedNoteType">
-      <div v-for="(name, i) in selectedNoteType.fields" :key="i" class="form-group">
-        <label>{{ name }}</label>
-
-        <textarea v-model="note.fields[name]" class="form-control" rows="5" />
-      </div>
+      <FieldEditor v-for="(name, i) in selectedNoteType.fields" :key="i" v-model="note.fields[name]" :title="name" />
     </div>
 
     <template v-slot:modal-footer="{ cancel }">
@@ -18,24 +14,48 @@
       </button>
 
       <button class="btn btn-primary" @click="create">
-        Add
+        Create
       </button>
     </template>
   </b-modal>
 </template>
 
 <script>
+import FieldEditor from '~/components/FieldEditor'
+
 export default {
+  components: {
+    FieldEditor
+  },
   data: () => ({
     show: false,
     noteTypes: [
       {
         name: 'Basic',
-        fields: ['Front', 'Back']
+        fields: ['Front', 'Back'],
+        templates: [
+          {
+            name: 'Front -> Back',
+            frontSide: '{{Front}}',
+            backSide: '{{FrontSide}}<hr>{{Back}}'
+          }
+        ]
       },
       {
         name: 'Basic (and reversed)',
-        fields: ['Front', 'Back']
+        fields: ['Front', 'Back'],
+        templates: [
+          {
+            name: 'Front -> Back',
+            frontSide: '{{Front}}',
+            backSide: '{{FrontSide}}<hr>{{Back}}'
+          },
+          {
+            name: 'Back -> Front',
+            frontSide: '{{Back}}',
+            backSide: '{{FrontSide}}<hr>{{Front}}'
+          }
+        ]
       }
     ],
     selectedNoteType: null,
@@ -45,7 +65,9 @@ export default {
   }),
   methods: {
     create () {
-      const note = {}
+      const note = this.note
+
+      note.type = this.selectedNoteType
 
       this.$emit('created', note)
 
@@ -55,6 +77,8 @@ export default {
 }
 </script>
 
-<style>
-
+<style lang="scss">
+.field-editor {
+  margin-bottom: 1em;
+}
 </style>
