@@ -8,11 +8,24 @@ import { PrismaClient } from '@prisma/client'
 
 import { router } from './router'
 import OpenIDUser from 'OpenIDUser'
+import { ExpressJoiError } from 'express-joi-validation'
+
+const expressJoiContainerTypes = [
+  'body',
+  'query',
+  'headers',
+  'fields',
+  'params'
+]
 
 type Auth0CallbackRequest = OpenidRequest & {
   appSession?: {
     claims: any;
   };
+}
+
+function isExpressJoiError (err: any): err is ExpressJoiError {
+  return err?.type && expressJoiContainerTypes.includes(err.type)
 }
 
 function createServer () {
@@ -52,6 +65,8 @@ function createServer () {
     }
   }))
 
+  app.use(express.json())
+
   // Enable CORS
   app.use(cors())
 
@@ -77,11 +92,16 @@ function createServer () {
    * Error handler. Handles all errors thrown inside middleware and route
    * handlers/controllers.
    */
-  app.use((err: Error|HttpError, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  app.use((err: Error|HttpError|ExpressJoiError, req: express.Request, res: express.Response, next: express.NextFunction) => {
     // If the error is an HttpError, use it. If not, treat is as a 500-error.
     let error: HttpError
     if (err instanceof HttpError) {
       error = err
+    } else
+    if (isExpressJoiError(err)) {
+      const e: ExpressJoiError = err
+
+      error = createError(400, e.error.message)
     } else {
       error = createError(500)
     }
