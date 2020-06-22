@@ -22,3 +22,35 @@ export async function getDecks(req: Request, res: Response) {
     data: decks
   })
 }
+
+export async function updateDeck(req: Request, res: Response) {
+  const { id } = req.params
+  const { name } = req.body
+
+  const deck = await req.prisma.deck.update({
+    where: {
+      id
+    },
+    data: {
+      name
+    }
+  })
+
+  res.json({
+    data: deck
+  })
+}
+
+export async function deleteDeck(req: Request, res: Response) {
+  const { id } = req.params
+
+  const deck = await req.prisma.deck.delete({
+    where: {
+      id
+    }
+  })
+
+  res.json({
+    data: deck
+  })
+}
