@@ -2,3 +2,5 @@
 
 20200519191152-initial-migration
 20200613124503-prisma-refactor
+20200622173805-remove-props-from-user
+20200622180616-add-idp-sub-to-user
