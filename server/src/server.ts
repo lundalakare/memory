@@ -12,6 +12,9 @@ function createServer () {
 
   const prisma = new PrismaClient()
 
+  // Body parser
+  app.use(express.json())
+
   // Enable CORS
   app.use(cors())
 

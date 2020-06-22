@@ -1,0 +1,24 @@
+import { Request, Response } from 'express'
+
+export async function createDeck(req: Request, res: Response) {
+  const { name, userId } = req.body
+
+  const deck = await req.prisma.deck.create({
+    data: {
+      name,
+      user: { connect: { id: userId } }
+    }
+  })
+
+  res.json({
+    data: deck
+  })
+}
+
+export async function getDecks(req: Request, res: Response) {
+  const decks = await req.prisma.deck.findMany()
+
+  res.json({
+    data: decks
+  })
+}
