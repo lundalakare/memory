@@ -1,5 +1,3 @@
 # Prisma Migrate lockfile v1
 
-20200519191152-initial-migration
-20200613124503-prisma-refactor
-20200621165032-templates-rename
+20200623132730-initial-migration
