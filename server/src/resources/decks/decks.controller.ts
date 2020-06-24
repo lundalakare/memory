@@ -1,22 +1,51 @@
 import { Request, Response } from 'express'
+import Joi from '@hapi/joi'
 
-export async function createDeck(req: Request, res: Response) {
-  const { name, userId } = req.body
+import {
+  ContainerTypes,
+  ValidatedRequest,
+  ValidatedRequestSchema,
+  createValidator
+} from 'express-joi-validation'
+import { adminOrUserId } from '../../util/authorization'
+import createError from 'http-errors'
 
-  const deck = await req.prisma.deck.create({
-    data: {
-      name,
-      user: { connect: { id: userId } }
-    }
-  })
+const validator = createValidator({
+  passError: true
+})
 
-  res.json({
-    data: deck
-  })
+interface CreateDeckSchema extends ValidatedRequestSchema {
+  [ContainerTypes.Body]: {
+    name: string;
+  };
 }
+export const createDeck = [
+  validator.body(Joi.object({
+    name: Joi.string().required()
+  })),
+  async function createDeck(req: ValidatedRequest<CreateDeckSchema>, res: Response) {
+    const { name } = req.body
+  
+    const deck = await req.prisma.deck.create({
+      data: {
+        name,
+        user: { connect: { id: req.userId } }
+      }
+    })
+  
+    res.json({
+      data: deck
+    })
+  }
+]
+
 
 export async function getDecks(req: Request, res: Response) {
-  const decks = await req.prisma.deck.findMany()
+  const decks = await req.prisma.deck.findMany({
+    where: {
+      userId: req.userId
+    }
+  })
 
   res.json({
     data: decks
@@ -47,7 +76,15 @@ export async function updateDeck(req: Request, res: Response) {
   const { id } = req.params
   const { name } = req.body
 
-  const deck = await req.prisma.deck.update({
+  const deck = await req.prisma.deck.findOne({
+    where: { id }
+  })
+
+  if (!adminOrUserId(req, deck.userId)) {
+    throw createError(404)
+  }
+
+  const updatedDeck = await req.prisma.deck.update({
     where: {
       id
     },
@@ -57,7 +94,7 @@ export async function updateDeck(req: Request, res: Response) {
   })
 
   res.json({
-    data: deck
+    data: updatedDeck
   })
 }
 
