@@ -23,6 +23,26 @@ export async function getDecks(req: Request, res: Response) {
   })
 }
 
+export async function getDeck(req: Request, res: Response) {
+  const deck = await req.prisma.deck.findOne({
+    where: {
+      id: req.params.id
+    },
+    include: {
+      notes: {
+        select: {
+          type: true,
+          cards: true
+        }
+      }
+    }
+  })
+
+  res.json({
+    data: deck
+  })
+}
+
 export async function updateDeck(req: Request, res: Response) {
   const { id } = req.params
   const { name } = req.body
