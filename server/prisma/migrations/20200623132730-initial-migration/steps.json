@@ -2,14 +2,6 @@
   "version": "0.3.14-fixed",
   "steps": [
     {
-      "tag": "CreateEnum",
-      "enum": "Role",
-      "values": [
-        "USER",
-        "ADMIN"
-      ]
-    },
-    {
       "tag": "CreateSource",
       "source": "db"
     },
@@ -81,7 +73,14 @@
     {
       "tag": "CreateField",
       "model": "User",
-      "field": "username",
+      "field": "roles",
+      "type": "String",
+      "arity": "List"
+    },
+    {
+      "tag": "CreateField",
+      "model": "User",
+      "field": "idpSub",
       "type": "String",
       "arity": "Required"
     },
@@ -91,73 +90,23 @@
         "path": {
           "tag": "Field",
           "model": "User",
-          "field": "username"
+          "field": "idpSub"
         },
         "directive": "unique"
       }
-    },
-    {
-      "tag": "CreateField",
-      "model": "User",
-      "field": "email",
-      "type": "String",
-      "arity": "Required"
-    },
-    {
-      "tag": "CreateDirective",
-      "location": {
-        "path": {
-          "tag": "Field",
-          "model": "User",
-          "field": "email"
-        },
-        "directive": "unique"
-      }
-    },
-    {
-      "tag": "CreateField",
-      "model": "User",
-      "field": "password",
-      "type": "String",
-      "arity": "Required"
-    },
-    {
-      "tag": "CreateField",
-      "model": "User",
-      "field": "role",
-      "type": "Role",
-      "arity": "Required"
-    },
-    {
-      "tag": "CreateDirective",
-      "location": {
-        "path": {
-          "tag": "Field",
-          "model": "User",
-          "field": "role"
-        },
-        "directive": "default"
-      }
-    },
-    {
-      "tag": "CreateArgument",
-      "location": {
-        "tag": "Directive",
-        "path": {
-          "tag": "Field",
-          "model": "User",
-          "field": "role"
-        },
-        "directive": "default"
-      },
-      "argument": "",
-      "value": "USER"
     },
     {
       "tag": "CreateField",
       "model": "User",
       "field": "decks",
       "type": "Deck",
+      "arity": "List"
+    },
+    {
+      "tag": "CreateField",
+      "model": "User",
+      "field": "noteTypes",
+      "type": "NoteType",
       "arity": "List"
     },
     {
@@ -274,8 +223,8 @@
     {
       "tag": "CreateField",
       "model": "NoteType",
-      "field": "cardTypes",
-      "type": "CardType",
+      "field": "templates",
+      "type": "Template",
       "arity": "List"
     },
     {
@@ -284,6 +233,59 @@
       "field": "notes",
       "type": "Note",
       "arity": "List"
+    },
+    {
+      "tag": "CreateField",
+      "model": "NoteType",
+      "field": "user",
+      "type": "User",
+      "arity": "Required"
+    },
+    {
+      "tag": "CreateDirective",
+      "location": {
+        "path": {
+          "tag": "Field",
+          "model": "NoteType",
+          "field": "user"
+        },
+        "directive": "relation"
+      }
+    },
+    {
+      "tag": "CreateArgument",
+      "location": {
+        "tag": "Directive",
+        "path": {
+          "tag": "Field",
+          "model": "NoteType",
+          "field": "user"
+        },
+        "directive": "relation"
+      },
+      "argument": "fields",
+      "value": "[userId]"
+    },
+    {
+      "tag": "CreateArgument",
+      "location": {
+        "tag": "Directive",
+        "path": {
+          "tag": "Field",
+          "model": "NoteType",
+          "field": "user"
+        },
+        "directive": "relation"
+      },
+      "argument": "references",
+      "value": "[id]"
+    },
+    {
+      "tag": "CreateField",
+      "model": "NoteType",
+      "field": "userId",
+      "type": "String",
+      "arity": "Required"
     },
     {
       "tag": "CreateField",
@@ -337,11 +339,11 @@
     },
     {
       "tag": "CreateModel",
-      "model": "CardType"
+      "model": "Template"
     },
     {
       "tag": "CreateField",
-      "model": "CardType",
+      "model": "Template",
       "field": "id",
       "type": "String",
       "arity": "Required"
@@ -351,7 +353,7 @@
       "location": {
         "path": {
           "tag": "Field",
-          "model": "CardType",
+          "model": "Template",
           "field": "id"
         },
         "directive": "id"
@@ -362,7 +364,7 @@
       "location": {
         "path": {
           "tag": "Field",
-          "model": "CardType",
+          "model": "Template",
           "field": "id"
         },
         "directive": "default"
@@ -374,7 +376,7 @@
         "tag": "Directive",
         "path": {
           "tag": "Field",
-          "model": "CardType",
+          "model": "Template",
           "field": "id"
         },
         "directive": "default"
@@ -384,28 +386,28 @@
     },
     {
       "tag": "CreateField",
-      "model": "CardType",
+      "model": "Template",
       "field": "name",
       "type": "String",
       "arity": "Required"
     },
     {
       "tag": "CreateField",
-      "model": "CardType",
+      "model": "Template",
       "field": "front",
       "type": "String",
       "arity": "Required"
     },
     {
       "tag": "CreateField",
-      "model": "CardType",
+      "model": "Template",
       "field": "back",
       "type": "String",
       "arity": "Required"
     },
     {
       "tag": "CreateField",
-      "model": "CardType",
+      "model": "Template",
       "field": "noteType",
       "type": "NoteType",
       "arity": "Required"
@@ -415,7 +417,7 @@
       "location": {
         "path": {
           "tag": "Field",
-          "model": "CardType",
+          "model": "Template",
           "field": "noteType"
         },
         "directive": "relation"
@@ -427,7 +429,7 @@
         "tag": "Directive",
         "path": {
           "tag": "Field",
-          "model": "CardType",
+          "model": "Template",
           "field": "noteType"
         },
         "directive": "relation"
@@ -441,7 +443,7 @@
         "tag": "Directive",
         "path": {
           "tag": "Field",
-          "model": "CardType",
+          "model": "Template",
           "field": "noteType"
         },
         "directive": "relation"
@@ -451,21 +453,14 @@
     },
     {
       "tag": "CreateField",
-      "model": "CardType",
+      "model": "Template",
       "field": "noteTypeId",
       "type": "String",
       "arity": "Required"
     },
     {
       "tag": "CreateField",
-      "model": "CardType",
-      "field": "cards",
-      "type": "Card",
-      "arity": "List"
-    },
-    {
-      "tag": "CreateField",
-      "model": "CardType",
+      "model": "Template",
       "field": "createdAt",
       "type": "DateTime",
       "arity": "Required"
@@ -475,7 +470,7 @@
       "location": {
         "path": {
           "tag": "Field",
-          "model": "CardType",
+          "model": "Template",
           "field": "createdAt"
         },
         "directive": "default"
@@ -487,7 +482,7 @@
         "tag": "Directive",
         "path": {
           "tag": "Field",
-          "model": "CardType",
+          "model": "Template",
           "field": "createdAt"
         },
         "directive": "default"
@@ -497,7 +492,7 @@
     },
     {
       "tag": "CreateField",
-      "model": "CardType",
+      "model": "Template",
       "field": "updatedAt",
       "type": "DateTime",
       "arity": "Required"
@@ -507,7 +502,7 @@
       "location": {
         "path": {
           "tag": "Field",
-          "model": "CardType",
+          "model": "Template",
           "field": "updatedAt"
         },
         "directive": "updatedAt"
@@ -563,7 +558,7 @@
     {
       "tag": "CreateField",
       "model": "Note",
-      "field": "fields",
+      "field": "fieldData",
       "type": "FieldData",
       "arity": "List"
     },
@@ -624,6 +619,59 @@
       "tag": "CreateField",
       "model": "Note",
       "field": "typeId",
+      "type": "String",
+      "arity": "Required"
+    },
+    {
+      "tag": "CreateField",
+      "model": "Note",
+      "field": "deck",
+      "type": "Deck",
+      "arity": "Required"
+    },
+    {
+      "tag": "CreateDirective",
+      "location": {
+        "path": {
+          "tag": "Field",
+          "model": "Note",
+          "field": "deck"
+        },
+        "directive": "relation"
+      }
+    },
+    {
+      "tag": "CreateArgument",
+      "location": {
+        "tag": "Directive",
+        "path": {
+          "tag": "Field",
+          "model": "Note",
+          "field": "deck"
+        },
+        "directive": "relation"
+      },
+      "argument": "fields",
+      "value": "[deckId]"
+    },
+    {
+      "tag": "CreateArgument",
+      "location": {
+        "tag": "Directive",
+        "path": {
+          "tag": "Field",
+          "model": "Note",
+          "field": "deck"
+        },
+        "directive": "relation"
+      },
+      "argument": "references",
+      "value": "[id]"
+    },
+    {
+      "tag": "CreateField",
+      "model": "Note",
+      "field": "deckId",
       "type": "String",
       "arity": "Required"
     },
@@ -730,17 +778,6 @@
       "field": "fieldName",
       "type": "String",
       "arity": "Required"
-    },
-    {
-      "tag": "CreateDirective",
-      "location": {
-        "path": {
-          "tag": "Field",
-          "model": "FieldData",
-          "field": "fieldName"
-        },
-        "directive": "unique"
-      }
     },
     {
       "tag": "CreateField",
@@ -853,6 +890,22 @@
       }
     },
     {
+      "tag": "CreateDirective",
+      "location": {
+        "path": {
+          "tag": "Model",
+          "model": "FieldData",
+          "arguments": [
+            {
+              "name": "",
+              "value": "[fieldName, noteId]"
+            }
+          ]
+        },
+        "directive": "unique"
+      }
+    },
+    {
       "tag": "CreateModel",
       "model": "Card"
     },
@@ -934,59 +987,6 @@
     {
       "tag": "CreateField",
       "model": "Card",
-      "field": "deck",
-      "type": "Deck",
-      "arity": "Required"
-    },
-    {
-      "tag": "CreateDirective",
-      "location": {
-        "path": {
-          "tag": "Field",
-          "model": "Card",
-          "field": "deck"
-        },
-        "directive": "relation"
-      }
-    },
-    {
-      "tag": "CreateArgument",
-      "location": {
-        "tag": "Directive",
-        "path": {
-          "tag": "Field",
-          "model": "Card",
-          "field": "deck"
-        },
-        "directive": "relation"
-      },
-      "argument": "fields",
-      "value": "[deckId]"
-    },
-    {
-      "tag": "CreateArgument",
-      "location": {
-        "tag": "Directive",
-        "path": {
-          "tag": "Field",
-          "model": "Card",
-          "field": "deck"
-        },
-        "directive": "relation"
-      },
-      "argument": "references",
-      "value": "[id]"
-    },
-    {
-      "tag": "CreateField",
-      "model": "Card",
-      "field": "deckId",
-      "type": "String",
-      "arity": "Required"
-    },
-    {
-      "tag": "CreateField",
-      "model": "Card",
       "field": "note",
       "type": "Note",
       "arity": "Required"
@@ -1034,59 +1034,6 @@
       "tag": "CreateField",
       "model": "Card",
       "field": "noteId",
-      "type": "String",
-      "arity": "Required"
-    },
-    {
-      "tag": "CreateField",
-      "model": "Card",
-      "field": "type",
-      "type": "CardType",
-      "arity": "Required"
-    },
-    {
-      "tag": "CreateDirective",
-      "location": {
-        "path": {
-          "tag": "Field",
-          "model": "Card",
-          "field": "type"
-        },
-        "directive": "relation"
-      }
-    },
-    {
-      "tag": "CreateArgument",
-      "location": {
-        "tag": "Directive",
-        "path": {
-          "tag": "Field",
-          "model": "Card",
-          "field": "type"
-        },
-        "directive": "relation"
-      },
-      "argument": "fields",
-      "value": "[typeId]"
-    },
-    {
-      "tag": "CreateArgument",
-      "location": {
-        "tag": "Directive",
-        "path": {
-          "tag": "Field",
-          "model": "Card",
-          "field": "type"
-        },
-        "directive": "relation"
-      },
-      "argument": "references",
-      "value": "[id]"
-    },
-    {
-      "tag": "CreateField",
-      "model": "Card",
-      "field": "typeId",
       "type": "String",
       "arity": "Required"
     },
@@ -1197,8 +1144,8 @@
     {
       "tag": "CreateField",
       "model": "Deck",
-      "field": "cards",
-      "type": "Card",
+      "field": "notes",
+      "type": "Note",
       "arity": "List"
     },
     {

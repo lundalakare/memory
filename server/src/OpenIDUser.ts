@@ -6,4 +6,7 @@ export default interface OpenIDUser {
   email: string;
   email_verified: boolean;
   sub: string;
+  _localId: string;
+  _scopes: string[];
+  _admin: boolean;
 }

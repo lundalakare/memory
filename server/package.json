@@ -33,6 +33,7 @@
     "express": "^4.17.1",
     "express-joi-validation": "^4.0.3",
     "express-openid-connect": "^1.0.2",
-    "http-errors": "^1.7.3"
+    "http-errors": "^1.7.3",
+    "jose": "^1.27.1"
   }
 }
