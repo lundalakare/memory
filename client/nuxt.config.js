@@ -42,7 +42,7 @@ export default {
   ** Nuxt.js modules
   */
   modules: [
-    // Doc: https://axios.nuxtjs.org/usage
+    '@nuxtjs/proxy',
     '@nuxtjs/axios',
     '@nuxtjs/pwa',
     'bootstrap-vue/nuxt',
@@ -51,12 +51,23 @@ export default {
   bootstrapVue: {
     icons: true
   },
+
+  proxy: {
+    '/api': {
+      target: 'http://localhost:4000',
+      pathRewrite: {
+        '^/api': '/'
+      }
+    },
+    '/callback': 'http://localhost:4000'
+  },
+
   /*
   ** Axios module configuration
   ** See https://axios.nuxtjs.org/options
   */
   axios: {
-    baseURL: 'http://localhost:4000/'
+    baseURL: '/api'
   },
   /*
   ** Build configuration

@@ -35,6 +35,11 @@ function createServer () {
 
   const prisma = new PrismaClient()
 
+  app.use((req, res, next) => {
+    console.log(req.path)
+    next()
+  })
+
   app.use(auth({
     required: false,
     auth0Logout: true,
