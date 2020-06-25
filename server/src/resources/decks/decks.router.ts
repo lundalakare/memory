@@ -5,8 +5,9 @@ import { scope } from '~/util/authorization'
 
 const router = express.Router()
 
-router.post('/', auth(), scope('decks:write'), createDeck)
 router.get('/', auth(), scope('decks:read'), getDecks)
+router.post('/', auth(), scope('decks:write'), createDeck)
+
 router.get('/:id', auth(), scope('decks:read'), getDeck)
 router.patch('/:id', auth(), scope('decks:write'), updateDeck)
 router.delete('/:id', auth(), scope('decks:write'), deleteDeck)

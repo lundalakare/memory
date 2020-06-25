@@ -7,11 +7,25 @@ import {
   ValidatedRequestSchema,
   createValidator
 } from 'express-joi-validation'
-import { adminOrUserId } from '~/util/authorization'
+
+import { adminOrUserId, skipIfAdmin } from '~/util/authorization'
 import createError from 'http-errors'
+import wrapAsync from '~/util/wrapAsync'
 
 const validator = createValidator({
   passError: true
+})
+
+export const getDecks = wrapAsync(async function getDecks(req: Request, res: Response) {
+  const decks = await req.prisma.deck.findMany({
+    where: {
+      userId: skipIfAdmin(req, req.user.id)
+    }
+  })
+
+  res.json({
+    data: decks
+  })
 })
 
 interface CreateDeckSchema extends ValidatedRequestSchema {
@@ -23,12 +37,10 @@ export const createDeck = [
   validator.body(Joi.object({
     name: Joi.string().required()
   })),
-  async function createDeck(req: ValidatedRequest<CreateDeckSchema>, res: Response) {
-    const { name } = req.body
-  
+  wrapAsync(async function createDeck(req: ValidatedRequest<CreateDeckSchema>, res: Response) {
     const deck = await req.prisma.deck.create({
       data: {
-        name,
+        name: req.body.name,
         user: { connect: { id: req.user.id } }
       }
     })
@@ -36,23 +48,10 @@ export const createDeck = [
     res.json({
       data: deck
     })
-  }
+  })
 ]
 
-
-export async function getDecks(req: Request, res: Response) {
-  const decks = await req.prisma.deck.findMany({
-    where: {
-      userId: req.user.id
-    }
-  })
-
-  res.json({
-    data: decks
-  })
-}
-
-export async function getDeck(req: Request, res: Response) {
+export const getDeck = wrapAsync(async function getDeck(req: Request, res: Response) {
   const deck = await req.prisma.deck.findOne({
     where: {
       id: req.params.id
@@ -67,47 +66,64 @@ export async function getDeck(req: Request, res: Response) {
     }
   })
 
+  if (!deck || !adminOrUserId(req, deck.userId)) {
+    throw createError(404)
+  }
+
   res.json({
     data: deck
   })
-}
+})
 
-export async function updateDeck(req: Request, res: Response) {
+interface UpdateDeckSchema extends ValidatedRequestSchema {
+  [ContainerTypes.Body]: {
+    name?: string;
+  };
+}
+export const updateDeck = [
+  validator.body(Joi.object({
+    name: Joi.string()
+  })),
+  wrapAsync(async function updateDeck(req: ValidatedRequest<UpdateDeckSchema>, res: Response) {
+    const { id } = req.params
+
+    const deck = await req.prisma.deck.findOne({
+      where: { id }
+    })
+
+    if (!deck || !adminOrUserId(req, deck.userId)) {
+      throw createError(404)
+    }
+
+    const updatedDeck = await req.prisma.deck.update({
+      where: { id },
+      data: {
+        name: req.body.name
+      }
+    })
+    
+    res.json({
+      data: updatedDeck
+    })
+  })
+]
+
+export const deleteDeck = wrapAsync(async function deleteDeck(req: Request, res: Response) {
   const { id } = req.params
-  const { name } = req.body
 
   const deck = await req.prisma.deck.findOne({
     where: { id }
   })
 
-  if (!adminOrUserId(req, deck.userId)) {
+  if (!deck || !adminOrUserId(req, deck.userId)) {
     throw createError(404)
   }
 
-  const updatedDeck = await req.prisma.deck.update({
-    where: {
-      id
-    },
-    data: {
-      name
-    }
+  await req.prisma.deck.delete({
+    where: { id }
   })
 
   res.json({
-    data: updatedDeck
+    data: {}
   })
-}
-
-export async function deleteDeck(req: Request, res: Response) {
-  const { id } = req.params
-
-  const deck = await req.prisma.deck.delete({
-    where: {
-      id
-    }
-  })
-
-  res.json({
-    data: deck
-  })
-}
+})

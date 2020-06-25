@@ -13,3 +13,11 @@ export function scope(scope: string) {
 export function adminOrUserId (req: Request, userId: string) {
   return req.user._admin || req.user.id === userId
 }
+
+export function skipIfAdmin (req: Request, value: string) {
+  if (req.user._admin) {
+    return undefined
+  } else {
+    return value
+  }
+}
