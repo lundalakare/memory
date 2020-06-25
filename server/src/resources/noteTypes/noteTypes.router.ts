@@ -1,5 +1,5 @@
 import express from 'express'
-import { createNoteType, getNoteTypes } from './note-types.controller'
+import { createNoteType, getNoteTypes } from './noteTypes.controller'
 
 const router = express.Router()
 
