@@ -18,9 +18,11 @@ export const getMe = wrapAsync(async function getMe(req: Request, res: Response)
     }
     /* eslint-enable @typescript-eslint/camelcase */
 
-    res.json({
-      data: filteredUser
-    })
+    res
+      .set('Cache-Control', 'no-store, no-cache, private')
+      .json({
+        data: filteredUser
+      })
   } else {
     throw createError(401)
   }
