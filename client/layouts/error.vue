@@ -42,7 +42,6 @@ export default {
       type: Object,
       default: null
     }
-  },
-  layout: 'blog' // you can set a custom layout for the error page
+  }
 }
 </script>

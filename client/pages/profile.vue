@@ -1,12 +1,8 @@
 <template>
   <div class="container">
-    <h3>{{ username }}</h3>
+    <h3>{{ $auth.user.nickname }}</h3>
 
-    <p>{{ email }}</p>
-
-    <p>
-      <a href="#">Change password</a>
-    </p>
+    <p>{{ $auth.user.email }}</p>
   </div>
 </template>
 
