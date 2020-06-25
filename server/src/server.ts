@@ -99,7 +99,13 @@ function createServer () {
       ? req.query.back
       : '/'
 
-    res.openid.login({ returnTo })
+    res.openid.login({
+      returnTo,
+      authorizationParams: req.query.signup ? {
+        // eslint-disable-next-line @typescript-eslint/camelcase
+        screen_hint: 'signup'
+      } : undefined
+    })
   })
   app.get('/logout', (req, res: any) => res.openid.logout())
 

@@ -10,7 +10,14 @@
           Learn more in less time. Never forget.
         </h3>
 
-        <button class="btn btn-outline-light">
+        <h5 v-if="$auth.user">
+          Welcome {{ $auth.user.nickname }}
+        </h5>
+        <button
+          v-else
+          class="btn btn-outline-light"
+          @click="$auth.login({ signup: true })"
+        >
           Create account
         </button>
       </div>
