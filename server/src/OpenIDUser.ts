@@ -1,4 +1,5 @@
-export default interface OpenIDUser {
+export class OpenIDUserFiltered {
+  id: string;
   nickname: string;
   name: string;
   picture: string;
@@ -6,7 +7,9 @@ export default interface OpenIDUser {
   email: string;
   email_verified: boolean;
   sub: string;
-  _localId: string;
+}
+
+export class OpenIDUser extends OpenIDUserFiltered {
   _scopes: string[];
   _admin: boolean;
 }

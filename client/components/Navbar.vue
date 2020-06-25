@@ -15,7 +15,40 @@
 
       <!-- Right aligned nav items -->
       <b-navbar-nav class="ml-auto">
-        <b-nav-item-dropdown right>
+        <b-nav-item-dropdown
+          v-if="$auth.user"
+          right
+        >
+          <template v-slot:button-content>
+            {{ $auth.user.nickname }}
+          </template>
+
+          <b-dropdown-item to="/profile">
+            Profile
+          </b-dropdown-item>
+
+          <b-dropdown-item to="/note-types">
+            Note Types
+          </b-dropdown-item>
+
+          <b-dropdown-item @click="$auth.logout">
+            Log Out
+          </b-dropdown-item>
+        </b-nav-item-dropdown>
+
+        <b-button
+          v-else
+          size="sm"
+          variant="primary"
+          @click="$auth.login"
+        >
+          Log in
+        </b-button>
+
+        <!-- <b-nav-item-dropdown
+          v-else
+          right
+        >
           <template v-slot:button-content>
             johndoe
           </template>
@@ -31,7 +64,7 @@
           <b-dropdown-item>
             Log Out
           </b-dropdown-item>
-        </b-nav-item-dropdown>
+        </b-nav-item-dropdown> -->
       </b-navbar-nav>
     </b-collapse>
   </b-navbar>

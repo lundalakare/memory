@@ -2,9 +2,9 @@ declare namespace Express {
   interface Request {
     isAuthenticated (): Boolean
     openid: {
-      user: import('./OpenIDUser').default
+      user: import('./OpenIDUser').OpenIDUser
     },
-    userId: string,
+    user: import('./OpenIDUser').OpenIDUser
 
     prisma: import('@prisma/client').PrismaClient
   }

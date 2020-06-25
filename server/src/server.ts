@@ -35,14 +35,15 @@ function createServer () {
 
   const prisma = new PrismaClient()
 
-  app.use((req, res, next) => {
-    console.log(req.path)
-    next()
-  })
+  // app.use((req, res, next) => {
+  //   console.log(req.path)
+  //   next()
+  // })
 
   app.use(auth({
     required: false,
     auth0Logout: true,
+    routes: false,
     appSession: {
       secret: process.env.APP_KEY
     },
@@ -84,14 +85,31 @@ function createServer () {
 
       const hasAdminAccess = userRoles.some(role => role.admin)
 
-      req.appSession.claims._localId = localUser.id
+      req.appSession.claims.id = localUser.id
       req.appSession.claims._scopes = scopes
       req.appSession.claims._admin = hasAdminAccess
-      req.userId = localUser.id
 
       next()
     }
   }))
+
+  // Special login handler to return back query parameter
+  app.get('/login', (req, res: any) => {
+    const returnTo = typeof req.query.back === 'string' && req.query.back.startsWith('/')
+      ? req.query.back
+      : '/'
+
+    res.openid.login({ returnTo })
+  })
+  app.get('/logout', (req, res: any) => res.openid.logout())
+
+  // Set req.user for convenience
+  app.use((req, res, next) => {
+    if (req.openid?.user) {
+      req.user = req.openid.user
+    }
+    next()
+  })
 
   // Body parser
   app.use(express.json())
@@ -105,7 +123,7 @@ function createServer () {
   })
 
   app.get('/', (req, res, next) => {
-    res.json(req.openid.user)
+    res.json(req.user)
   })
 
   app.use(router)

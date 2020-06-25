@@ -7,7 +7,7 @@ import {
   ValidatedRequestSchema,
   createValidator
 } from 'express-joi-validation'
-import { adminOrUserId } from '../../util/authorization'
+import { adminOrUserId } from '~/util/authorization'
 import createError from 'http-errors'
 
 const validator = createValidator({
@@ -29,7 +29,7 @@ export const createDeck = [
     const deck = await req.prisma.deck.create({
       data: {
         name,
-        user: { connect: { id: req.userId } }
+        user: { connect: { id: req.user.id } }
       }
     })
   
@@ -43,7 +43,7 @@ export const createDeck = [
 export async function getDecks(req: Request, res: Response) {
   const decks = await req.prisma.deck.findMany({
     where: {
-      userId: req.userId
+      userId: req.user.id
     }
   })
 

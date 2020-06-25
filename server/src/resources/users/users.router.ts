@@ -1,10 +1,10 @@
-// import express from 'express'
-// import { createUser, getUsers, deleteUser } from './users.controller'
+import express from 'express'
+import { getMe } from './users.controller'
+import { requiresAuth as auth } from 'express-openid-connect'
 
-// const router = express.Router()
+const router = express.Router()
 
-// router.post('/', createUser)
-// router.get('/', getUsers)
-// router.delete('/:id', deleteUser)
+router.get('/me', auth(), getMe)
 
-// export { router }
+export { router }
+

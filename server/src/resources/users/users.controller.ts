@@ -1,70 +1,27 @@
-// import { Request, Response } from 'express'
-// import Joi from '@hapi/joi'
+import { Request, Response } from 'express'
+import createError from 'http-errors'
+import wrapAsync from '~/util/wrapAsync'
+import { OpenIDUserFiltered } from '~/OpenIDUser'
 
-// import {
-//   ContainerTypes,
-//   ValidatedRequest,
-//   ValidatedRequestSchema,
-//   createValidator
-// } from 'express-joi-validation'
+export const getMe = wrapAsync(async function getMe(req: Request, res: Response) {
+  if (req.user) {
+    /* eslint-disable @typescript-eslint/camelcase */
+    const filteredUser: OpenIDUserFiltered = {
+      id: req.user.id,
+      email: req.user.email,
+      email_verified: req.user.email_verified,
+      name: req.user.name,
+      nickname: req.user.name,
+      picture: req.user.picture,
+      sub: req.user.sub,
+      updated_at: req.user.updated_at
+    }
+    /* eslint-enable @typescript-eslint/camelcase */
 
-// const validator = createValidator({
-//   passError: true
-// })
-
-// interface CreateUserSchema extends ValidatedRequestSchema {
-//   [ContainerTypes.Body]: {
-//     email: string;
-//     username: string;
-//     password: string;
-//   };
-// }
-// export const createUser = [
-//   validator.body(Joi.object({
-//     email: Joi.string().email().required(),
-//     username: Joi.string().min(3).required(),
-//     password: Joi.string().required()
-//   })),
-//   async function createUser(req: ValidatedRequest<CreateUserSchema>, res: Response) {
-//     const { email, password, username } = req.body
-  
-//     const user = await req.prisma.user.create({
-//       data: {
-//         email,
-//         password,
-//         username
-//       }
-//     })
-  
-//     res.json({
-//       data: user
-//     })
-//   }
-// ]
-
-// export async function getUsers(req: Request, res: Response) {
-//   const users = await req.prisma.user.findMany({
-//     include: {
-//       decks: true,
-//       noteTypes: true
-//     }
-//   })
-
-//   res.json({
-//     data: users
-//   })
-// }
-
-// export async function deleteUser(req: Request, res: Response) {
-//   const { id } = req.params
-
-//   const user = await req.prisma.user.delete({
-//     where: {
-//       id: id
-//     }
-//   })
-
-//   res.json({
-//     data: user
-//   })
-// }
+    res.json({
+      data: filteredUser
+    })
+  } else {
+    throw createError(401)
+  }
+})
