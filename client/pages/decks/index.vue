@@ -33,6 +33,7 @@ import CreateDeckModal from '~/components/CreateDeckModal'
 import StudyModal from '~/components/StudyModal'
 
 export default {
+  middleware: ['auth'],
   components: {
     Load,
     CreateDeckModal,
