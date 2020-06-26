@@ -1,5 +1,5 @@
 <template>
-  <Load :loaded="loaded">
+  <BaseLoad :loaded="loaded">
     <div class="container">
       <div class="row mb-2">
         <div class="col actions">
@@ -24,18 +24,16 @@
         </template>
       </b-table>
     </div>
-  </Load>
+  </BaseLoad>
 </template>
 
 <script>
-import Load from '~/components/Load.vue'
 import CreateDeckModal from '~/components/CreateDeckModal'
 import StudyModal from '~/components/StudyModal'
 
 export default {
   middleware: ['auth'],
   components: {
-    Load,
     CreateDeckModal,
     StudyModal
   },

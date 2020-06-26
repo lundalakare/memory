@@ -29,7 +29,8 @@ export default {
   */
   plugins: [
     '~/plugins/api.js',
-    '~/plugins/auth.js'
+    '~/plugins/auth.js',
+    '~/plugins/baseComponents.js'
   ],
   /*
   ** Nuxt.js dev-modules
