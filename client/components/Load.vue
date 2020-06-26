@@ -7,13 +7,18 @@
     </h1>
   </div>
 
-  <div v-else>
-    Loading...
+  <div v-else :class="$style.spinner">
+    <Spinner />
   </div>
 </template>
 
 <script>
+import Spinner from '~/components/Spinner'
+
 export default {
+  components: {
+    Spinner
+  },
   props: {
     loaded: {
       type: Boolean,
@@ -22,3 +27,11 @@ export default {
   }
 }
 </script>
+
+<style lang="scss" module>
+.spinner {
+  display: flex;
+  justify-content: center;
+  padding: 64px 0;
+}
+</style>
