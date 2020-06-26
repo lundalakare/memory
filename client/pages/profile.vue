@@ -9,10 +9,9 @@
 <script>
 export default {
   middleware: ['auth'],
-  data: () => ({
-    username: 'johndoe',
-    email: 'john.doe@example.com'
-  })
+  head: {
+    title: 'Profile'
+  }
 }
 </script>
 

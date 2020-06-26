@@ -55,6 +55,9 @@ export default {
     }
 
     this.loaded = true
+  },
+  head: {
+    title: 'Decks'
   }
 }
 </script>

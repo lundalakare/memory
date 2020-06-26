@@ -108,7 +108,13 @@ export default {
       }
       return template
     }
-  }
+  },
+  head () {
+    return {
+      title: this.deck ? this.deck.name : null
+    }
+  },
+  middleware: ['auth']
 }
 </script>
 
