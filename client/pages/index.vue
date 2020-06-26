@@ -11,7 +11,7 @@
         </h3>
 
         <h5 v-if="$auth.user">
-          Welcome {{ $auth.user.nickname }}
+          Welcome {{ $auth.user.name }}
         </h5>
         <button
           v-else

@@ -20,7 +20,7 @@
           right
         >
           <template v-slot:button-content>
-            {{ $auth.user.nickname }}
+            {{ $auth.user.name }}
           </template>
 
           <b-dropdown-item to="/profile">

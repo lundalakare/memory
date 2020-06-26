@@ -55,6 +55,8 @@ function createServer () {
       if (!req.appSession || !req.appSession.claims) {
         return null
       }
+
+      console.log(req.appSession)
     
       const user = req.appSession.claims
 
@@ -99,12 +101,18 @@ function createServer () {
       ? req.query.back
       : '/'
 
+    /* eslint-disable @typescript-eslint/camelcase */
+    const authorizationParams = {
+      response_type: 'id_token',
+      response_mode: 'form_post',
+      scope: 'openid profile email',
+      screen_hint: req.query.signup ? 'signup' : undefined
+    }
+    /* eslint-enable @typescript-eslint/camelcase */
+
     res.openid.login({
       returnTo,
-      authorizationParams: req.query.signup ? {
-        // eslint-disable-next-line @typescript-eslint/camelcase
-        screen_hint: 'signup'
-      } : undefined
+      authorizationParams
     })
   })
   app.get('/logout', (req, res: any) => res.openid.logout())
