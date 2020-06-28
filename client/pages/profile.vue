@@ -1,21 +1,17 @@
 <template>
   <div class="container">
-    <h3>{{ username }}</h3>
+    <h3>{{ $auth.user.name }}</h3>
 
-    <p>{{ email }}</p>
-
-    <p>
-      <a href="#">Change password</a>
-    </p>
+    <p>{{ $auth.user.email }}</p>
   </div>
 </template>
 
 <script>
 export default {
-  data: () => ({
-    username: 'johndoe',
-    email: 'john.doe@example.com'
-  })
+  middleware: ['auth'],
+  head: {
+    title: 'Profile'
+  }
 }
 </script>
 

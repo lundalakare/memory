@@ -5,7 +5,7 @@ export default {
   ** Headers of the page
   */
   head: {
-    title: 'Memory',
+    titleTemplate: title => title ? `${title} - Memory` : 'Memory',
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
@@ -28,7 +28,9 @@ export default {
   ** Plugins to load before mounting the App
   */
   plugins: [
-    '~/plugins/api.js'
+    '~/plugins/api.js',
+    '~/plugins/auth.js',
+    '~/plugins/baseComponents.js'
   ],
   /*
   ** Nuxt.js dev-modules
@@ -42,7 +44,7 @@ export default {
   ** Nuxt.js modules
   */
   modules: [
-    // Doc: https://axios.nuxtjs.org/usage
+    '@nuxtjs/proxy',
     '@nuxtjs/axios',
     '@nuxtjs/pwa',
     'bootstrap-vue/nuxt',
@@ -51,12 +53,23 @@ export default {
   bootstrapVue: {
     icons: true
   },
+
+  proxy: {
+    '/api': {
+      target: 'http://localhost:4000',
+      pathRewrite: {
+        '^/api': '/'
+      }
+    },
+    '/callback': 'http://localhost:4000'
+  },
+
   /*
   ** Axios module configuration
   ** See https://axios.nuxtjs.org/options
   */
   axios: {
-    baseURL: 'http://localhost:4000/'
+    baseURL: '/api'
   },
   /*
   ** Build configuration

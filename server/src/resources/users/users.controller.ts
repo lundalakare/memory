@@ -1,39 +1,33 @@
 import { Request, Response } from 'express'
-import Joi from '@hapi/joi'
+import createError from 'http-errors'
+import wrapAsync from '~/util/wrapAsync'
+import { OpenIDUserFiltered } from '~/OpenIDUser'
 
-import {
-  ContainerTypes,
-  ValidatedRequest,
-  ValidatedRequestSchema,
-  createValidator
-} from 'express-joi-validation'
+export const getMe = wrapAsync(async function getMe(req: Request, res: Response) {
+  if (req.user) {
+    const userMetadata = req.user['https://memory.lundalakare.se/user_metadata'] || {}
+    const appMetadata = req.user['https://memory.lundalakare.se/app_metadata'] || {}
+    /* eslint-disable @typescript-eslint/camelcase */
+    const filteredUser: OpenIDUserFiltered = {
+      id: req.user.id,
+      email: req.user.email,
+      email_verified: req.user.email_verified,
+      name: userMetadata.name || req.user.name,
+      nickname: req.user.name,
+      picture: req.user.picture,
+      sub: req.user.sub,
+      updated_at: req.user.updated_at,
+      user_metadata: userMetadata,
+      app_metadata: appMetadata
+    }
+    /* eslint-enable @typescript-eslint/camelcase */
 
-const validator = createValidator({
-  passError: true
-})
-
-export async function getUsers(req: Request, res: Response) {
-  const users = await req.prisma.user.findMany()
-
-  res.json({
-    data: users
-  })
-}
-
-interface CreateUserSchema extends ValidatedRequestSchema {
-  [ContainerTypes.Body]: {
-    email: string;
-  };
-}
-export const createUser = [
-  validator.body(Joi.object({
-    email: Joi.string().email().required()
-  })),
-  function createUser (req: ValidatedRequest<CreateUserSchema>, res: Response) {
-    res.send({
-      data: {
-        foo: req.body.email
-      }
-    })
+    res
+      .set('Cache-Control', 'no-store, no-cache, private')
+      .json({
+        data: filteredUser
+      })
+  } else {
+    throw createError(401)
   }
-]
+})

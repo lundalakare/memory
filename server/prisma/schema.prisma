@@ -10,15 +10,10 @@ generator client {
   provider = "prisma-client-js"
 }
 
-enum Role {
-  USER
-  ADMIN
-}
-
 model User {
   id        String      @id @default(cuid())
-  role      Role        @default(USER)
-  idpSub    String?     @unique
+  roles     String[]
+  idpSub    String      @unique
   decks     Deck[]
   noteTypes NoteType[]
   createdAt DateTime    @default(now())

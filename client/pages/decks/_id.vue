@@ -1,9 +1,9 @@
 <template>
   <div class="container">
-    <div class="row mb-2">
+    <div v-if="deck" class="row mb-2">
       <div v-if="!editing" class="col">
         <h3 class="mb-0">
-          {{ name }}
+          {{ deck.name }}
           <button class="btn btn-link" @click="editing = true">
             <b-icon-pencil />
           </button>
@@ -33,14 +33,14 @@
       </div>
     </div>
 
-    <CreateNoteModal @created="createCards($event)" />
+    <CreateNoteModal :note-types="noteTypes" @created="deck.notes.push($event)" />
     <EditNoteModal v-if="selectedNote" :note="selectedNote" />
 
     <b-table
+      v-if="cards.length > 0"
       :fields="fields"
       :items="cards"
       hover
-      borderless
     >
       <template v-slot:cell(ordinal)="data">
         Card {{ data.value + 1 }}
@@ -65,78 +65,56 @@ export default {
     EditNoteModal
   },
   data: () => ({
-    name: 'Patogenes',
+    deck: null,
     editing: false,
     fields: [
       { key: 'frontSide', label: 'Preview', sortable: true },
       { key: 'due', sortable: true }
     ],
-    notes: [
-      {
-        id: 'o829ejnejkdnas',
-        fields: {
-          Front: 'Bonjour',
-          Back: 'Hello'
-        },
-        type: {
-          fields: ['Front', 'Back'],
-          templates: [
-            {
-              id: '2784rhjwdfas',
-              name: 'Front -> Back',
-              frontSide: '{{Front}}',
-              backSide: '{{FrontSide}}<hr>{{Back}}'
-            },
-            {
-              id: 'r9i0wfjwnlks',
-              name: 'Back -> Front',
-              frontSide: '{{Back}}',
-              backSide: '{{FrontSide}}<hr>{{Front}}'
-            }
-          ]
-        },
-        cards: [
-          {
-            templateId: '2784rhjwdfas',
-            due: '2020-06-25'
-          },
-          {
-            templateId: 'r9i0wfjwnlks',
-            due: '2020-06-25'
-          }
-        ]
-      }
-    ],
+    noteTypes: [],
     cards: [],
     selectedNote: null
   }),
-  created () {
-    const cards = this.notes.map((note) => {
-      return note.cards.map((card) => {
-        const template = note.type.templates.find(x => x.id === card.templateId)
+  async created () {
+    try {
+      const id = this.$route.params.id
 
-        return {
-          noteId: note.id,
-          due: card.due,
-          frontSide: this.replace(template.frontSide, note.fields),
-          backSide: this.replace(template.backSide, note.fields)
-        }
-      })
-    })
-    this.cards = cards.flat()
+      this.deck = await this.$api.get(`/decks/${id}`)
+      this.noteTypes = await this.$api.get('/note-types')
+    } catch (error) {
+      this.error = error
+    }
+
+    // const cards = this.notes.map((note) => {
+    //   return note.cards.map((card) => {
+    //     const template = note.type.templates.find(x => x.id === card.templateId)
+
+    //     return {
+    //       noteId: note.id,
+    //       due: card.due,
+    //       frontSide: this.replace(template.frontSide, note.fields),
+    //       backSide: this.replace(template.backSide, note.fields)
+    //     }
+    //   })
+    // })
+    // this.cards = cards.flat()
+
+    this.loaded = true
   },
   methods: {
-    onRowSelected (items) {
-      this.selectedNote = this.notes.find(x => x.id === items[0].noteId)
-      this.$bvModal.show('edit-note-modal')
-    },
     replace (template, fields) {
       for (const field in fields) {
         template = template.replace(new RegExp(`{{${field}}}`, 'g'), fields[field])
       }
       return template
     }
-  }
+  },
+  head () {
+    return {
+      title: this.deck ? this.deck.name : null
+    }
+  },
+  middleware: ['auth']
 }
 </script>
 

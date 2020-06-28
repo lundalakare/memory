@@ -7,8 +7,10 @@ import { auth, OpenidRequest } from 'express-openid-connect'
 import { PrismaClient } from '@prisma/client'
 
 import { router } from './router'
-import OpenIDUser from 'OpenIDUser'
 import { ExpressJoiError } from 'express-joi-validation'
+
+import jose from 'jose'
+import { roles, Role } from './roles'
 
 const expressJoiContainerTypes = [
   'body',
@@ -33,9 +35,15 @@ function createServer () {
 
   const prisma = new PrismaClient()
 
+  // app.use((req, res, next) => {
+  //   console.log(req.path)
+  //   next()
+  // })
+
   app.use(auth({
     required: false,
     auth0Logout: true,
+    routes: false,
     appSession: {
       secret: process.env.APP_KEY
     },
@@ -47,6 +55,8 @@ function createServer () {
       if (!req.appSession || !req.appSession.claims) {
         return null
       }
+
+      console.log(req.appSession)
     
       const user = req.appSession.claims
 
@@ -54,17 +64,68 @@ function createServer () {
       const localUser = await prisma.user.upsert({
         where: { idpSub: user.sub },
         create: {
-          idpSub: user.sub
+          idpSub: user.sub,
+          roles: {
+            set: ['default']
+          }
         },
         update: {}
       })
 
-      req.appSession.claims._localId = localUser.id
+      const userRoles: Role[] = []
+      for (const roleName of localUser.roles) {
+        userRoles.push(roles[roleName])
+      }
+
+      let scopes: string[] = []
+      for (const roleName of localUser.roles) {
+        scopes = [
+          ...scopes,
+          ...roles[roleName].scopes
+        ]
+      }
+
+      const hasAdminAccess = userRoles.some(role => role.admin)
+
+      req.appSession.claims.id = localUser.id
+      req.appSession.claims._scopes = scopes
+      req.appSession.claims._admin = hasAdminAccess
 
       next()
     }
   }))
 
+  // Special login handler to return back query parameter
+  app.get('/login', (req, res: any) => {
+    const returnTo = typeof req.query.back === 'string' && req.query.back.startsWith('/')
+      ? req.query.back
+      : '/'
+
+    /* eslint-disable @typescript-eslint/camelcase */
+    const authorizationParams = {
+      response_type: 'id_token',
+      response_mode: 'form_post',
+      scope: 'openid profile email',
+      screen_hint: req.query.signup ? 'signup' : undefined
+    }
+    /* eslint-enable @typescript-eslint/camelcase */
+
+    res.openid.login({
+      returnTo,
+      authorizationParams
+    })
+  })
+  app.get('/logout', (req, res: any) => res.openid.logout())
+
+  // Set req.user for convenience
+  app.use((req, res, next) => {
+    if (req.openid?.user) {
+      req.user = req.openid.user
+    }
+    next()
+  })
+
+  // Body parser
   app.use(express.json())
 
   // Enable CORS
@@ -76,7 +137,7 @@ function createServer () {
   })
 
   app.get('/', (req, res, next) => {
-    res.json(req.openid.user)
+    res.json(req.user)
   })
 
   app.use(router)
@@ -102,6 +163,10 @@ function createServer () {
       const e: ExpressJoiError = err
 
       error = createError(400, e.error.message)
+    } else
+    if (err instanceof jose.errors.JWEInvalid) {
+      // This matches the error from express-openid-connect.
+      error = createError(401, 'Invalid session')
     } else {
       error = createError(500)
     }

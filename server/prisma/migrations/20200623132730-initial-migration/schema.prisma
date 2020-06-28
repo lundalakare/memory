@@ -10,14 +10,10 @@ generator client {
   provider = "prisma-client-js"
 }
 
-enum Role {
-  USER
-  ADMIN
-}
-
 model User {
   id        String      @id @default(cuid())
-  role      Role        @default(USER)
+  roles     String[]
+  idpSub    String      @unique
   decks     Deck[]
   noteTypes NoteType[]
   createdAt DateTime    @default(now())
@@ -28,7 +24,7 @@ model NoteType {
   id          String      @id @default(cuid()) 
   name        String
   fields      String[]
-  cardTypes   CardType[]
+  templates   Template[]
   notes       Note[]
   user        User        @relation(fields: [userId], references: [id])
   userId      String
@@ -36,7 +32,7 @@ model NoteType {
   updatedAt   DateTime    @updatedAt()
 }
 
-model CardType {
+model Template {
   id          String   @id @default(cuid())
   name        String
   front       String

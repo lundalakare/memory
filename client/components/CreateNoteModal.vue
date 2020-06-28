@@ -27,37 +27,14 @@ export default {
   components: {
     FieldEditor
   },
+  props: {
+    noteTypes: {
+      type: Object,
+      required: true
+    }
+  },
   data: () => ({
     show: false,
-    noteTypes: [
-      {
-        name: 'Basic',
-        fields: ['Front', 'Back'],
-        templates: [
-          {
-            name: 'Front -> Back',
-            frontSide: '{{Front}}',
-            backSide: '{{FrontSide}}<hr>{{Back}}'
-          }
-        ]
-      },
-      {
-        name: 'Basic (and reversed)',
-        fields: ['Front', 'Back'],
-        templates: [
-          {
-            name: 'Front -> Back',
-            frontSide: '{{Front}}',
-            backSide: '{{FrontSide}}<hr>{{Back}}'
-          },
-          {
-            name: 'Back -> Front',
-            frontSide: '{{Back}}',
-            backSide: '{{FrontSide}}<hr>{{Front}}'
-          }
-        ]
-      }
-    ],
     selectedNoteType: null,
     note: {
       fields: {}
