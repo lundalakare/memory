@@ -1,3 +1,4 @@
 # Prisma Migrate lockfile v1
 
 20200623132730-initial-migration
+20200701210214-note-type-fields

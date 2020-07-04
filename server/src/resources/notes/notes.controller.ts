@@ -22,24 +22,22 @@ interface FieldData {
 interface CreateNoteSchema extends ValidatedRequestSchema {
   [ContainerTypes.Body]: {
     noteTypeId: string;
-    deckId: string;
     fieldData: FieldData[];
   };
 }
 export const createNote = [
   validator.body(Joi.object({
     noteTypeId: Joi.string().required(),
-    deckId: Joi.string().required(),
     fieldData: Joi.array().items(Joi.object({
       fieldName: Joi.string().required(),
       value: Joi.string().required()
     })).required()
   })),
   wrapAsync(async function createNote(req: ValidatedRequest<CreateNoteSchema>, res: Response) {
-    const { noteTypeId, deckId, fieldData } = req.body
+    const { noteTypeId, fieldData } = req.body
 
     const deck = await req.prisma.deck.findOne({
-      where: { id: deckId }
+      where: { id: req.params.id }
     })
     if (!deck || !adminOrUserId(req, deck.userId)) {
       throw createError(404, 'Deck not found')
@@ -55,13 +53,22 @@ export const createNote = [
     const note = await req.prisma.note.create({
       data: {
         type: { connect: { id: noteTypeId } },
-        deck: { connect: { id: deckId } },
+        deck: { connect: { id: req.params.id } },
         fieldData: { create: fieldData }
       },
       include: {
-        fieldData: true
+        type: {
+          include: {
+            fields: true,
+            templates: true
+          }
+        },
+        fieldData: true,
+        cards: true
       }
     })
+
+    // Create cards too
 
     res.json({
       data: note

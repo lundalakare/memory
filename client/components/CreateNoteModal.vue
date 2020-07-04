@@ -1,11 +1,13 @@
 <template>
   <b-modal id="create-note-modal" v-model="show" title="Create Note">
     <div class="form-group">
-      <v-select v-model="selectedNoteType" :options="noteTypes" label="name" placeholder="Note Type" />
+      <v-select v-model="note.type" :options="noteTypes" label="name" placeholder="Note Type" />
     </div>
 
-    <div v-if="selectedNoteType">
-      <FieldEditor v-for="(name, i) in selectedNoteType.fields" :key="i" v-model="note.fields[name]" :title="name" />
+    <div v-if="note.type">
+      <div v-for="(field, i) in note.type.fields" :key="i">
+        <FieldEditor v-model="fields[field.name]" :title="field.name" />
+      </div>
     </div>
 
     <template v-slot:modal-footer="{ cancel }">
@@ -29,32 +31,33 @@ export default {
   },
   props: {
     noteTypes: {
-      type: Object,
+      type: Array,
       required: true
     }
   },
   data: () => ({
     show: false,
-    selectedNoteType: null,
     note: {
-      fields: {}
-    }
+      type: null
+    },
+    fields: {}
   }),
   methods: {
     create () {
       const note = this.note
 
-      note.type = this.selectedNoteType
+      note.fieldData = []
+      for (const key in this.fields) {
+        note.fieldData.push({ fieldName: key, value: this.fields[key] })
+      }
 
       this.$emit('created', note)
-
-      this.show = false
     }
   }
 }
 </script>
 
-<style lang="scss">
+<style>
 .field-editor {
   margin-bottom: 1em;
 }

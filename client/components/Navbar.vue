@@ -24,7 +24,7 @@
             Profile
           </b-dropdown-item>
 
-          <b-dropdown-item to="/note-types">
+          <b-dropdown-item :to="{ name: 'note-types' }">
             Note Types
           </b-dropdown-item>
 

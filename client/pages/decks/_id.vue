@@ -1,58 +1,61 @@
 <template>
-  <div class="container">
-    <div v-if="deck" class="row mb-2">
-      <div v-if="!editing" class="col">
-        <h3 class="mb-0">
-          {{ deck.name }}
-          <button class="btn btn-link" @click="editing = true">
-            <b-icon-pencil />
-          </button>
-        </h3>
-      </div>
+  <BaseLoad :loaded="loaded">
+    <CreateNoteModal :note-types="noteTypes" @created="createNote($event)" />
+    <EditNoteModal v-if="selectedCard" :note="selectedCard.note" />
 
-      <div v-else class="col">
-        <div class="input-group">
-          <input v-model="name" type="text" class="form-control" placeholder="Deck Name">
+    <div v-if="deck" class="container">
+      <div class="row mb-2">
+        <div v-if="!editing" class="col">
+          <h3 class="mb-0">
+            {{ deck.name }}
+          </h3>
+        </div>
 
-          <div class="input-group-append">
-            <button class="btn btn-outline-primary" type="button" @click="editing = false">
-              <b-icon-check />
+        <div v-else class="col">
+          <div class="input-group">
+            <input v-model="deck.name" type="text" class="form-control" placeholder="Deck Name">
+
+            <div class="input-group-append">
+              <button class="btn btn-outline-primary" type="button" @click="updateDeck">
+                <b-icon-check />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="col">
+          <div class="actions">
+            <button v-if="!editing" class="btn btn-link" @click="editing = true">
+              <b-icon-pencil />
             </button>
+
+            <button class="btn btn-link" @click="deleteDeck">
+              <b-icon-trash />
+            </button>
+
+            <button v-b-modal.create-note-modal class="btn btn-outline-primary">
+              Create Note
+            </button>
+
+            <nuxt-link to="/study" class="btn btn-primary">
+              Study
+            </nuxt-link>
           </div>
         </div>
       </div>
 
-      <div class="col actions">
-        <nuxt-link to="/study" class="btn btn-primary float-right">
-          Study
-        </nuxt-link>
-
-        <button v-b-modal.create-note-modal class="btn btn-outline-primary float-right">
-          Create Note
-        </button>
-      </div>
+      <b-table
+        v-if="cards.length > 0"
+        :fields="fields"
+        :items="cards"
+        hover
+        @row-clicked="editNote"
+      />
     </div>
-
-    <CreateNoteModal :note-types="noteTypes" @created="deck.notes.push($event)" />
-    <EditNoteModal v-if="selectedNote" :note="selectedNote" />
-
-    <b-table
-      v-if="cards.length > 0"
-      :fields="fields"
-      :items="cards"
-      hover
-    >
-      <template v-slot:cell(ordinal)="data">
-        Card {{ data.value + 1 }}
-      </template>
-
-      <template v-slot:cell(selected)="{ rowSelected }">
-        <template v-if="rowSelected">
-          <span aria-hidden="true">&check;</span>
-        </template>
-      </template>
-    </b-table>
-  </div>
+  </baseload>
+</template></b-table>
+    </div>
+  </BaseLoad>
 </template>
 
 <script>
@@ -65,16 +68,21 @@ export default {
     EditNoteModal
   },
   data: () => ({
+    loaded: false,
     deck: null,
     editing: false,
     fields: [
-      { key: 'frontSide', label: 'Preview', sortable: true },
-      { key: 'due', sortable: true }
+      { key: 'front', sortable: true },
+      { key: 'back', sortable: true }
     ],
     noteTypes: [],
-    cards: [],
-    selectedNote: null
+    selectedCard: null
   }),
+  computed: {
+    cards () {
+      return this.deck.notes.flatMap(note => this.render(note))
+    }
+  },
   async created () {
     try {
       const id = this.$route.params.id
@@ -85,28 +93,63 @@ export default {
       this.error = error
     }
 
-    // const cards = this.notes.map((note) => {
-    //   return note.cards.map((card) => {
-    //     const template = note.type.templates.find(x => x.id === card.templateId)
-
-    //     return {
-    //       noteId: note.id,
-    //       due: card.due,
-    //       frontSide: this.replace(template.frontSide, note.fields),
-    //       backSide: this.replace(template.backSide, note.fields)
-    //     }
-    //   })
-    // })
-    // this.cards = cards.flat()
-
     this.loaded = true
   },
   methods: {
-    replace (template, fields) {
-      for (const field in fields) {
-        template = template.replace(new RegExp(`{{${field}}}`, 'g'), fields[field])
+    async updateDeck () {
+      try {
+        await this.$api.patch(`/decks/${this.deck.id}`, {
+          name: this.deck.name
+        })
+      } catch (error) {
+        this.error = error
       }
-      return template
+
+      this.editing = false
+    },
+    async deleteDeck () {
+      if (confirm('Are you sure you want to delete this deck?')) {
+        try {
+          await this.$api.delete(`/decks/${this.deck.id}`)
+        } catch (error) {
+          this.error = error
+        }
+
+        this.$router.push({ name: 'decks' })
+      }
+    },
+    async createNote (event) {
+      try {
+        const note = await this.$api.post(`/decks/${this.deck.id}/notes`, {
+          noteTypeId: event.type.id,
+          fieldData: event.fieldData
+        })
+        this.deck.notes.push(note)
+      } catch (error) {
+        this.error = error
+      }
+    },
+    editNote (item, index, event) {
+      this.selectedCard = item
+      this.$bvModal.show('edit-note-modal')
+    },
+    render (note) {
+      const re = new RegExp('{{(.*?)}}', 'gm')
+      return note.type.templates.map((template) => {
+        const card = {
+          note
+        }
+        card.front = template.front.replace(re, (match, field) => {
+          return note.fieldData.find(x => x.fieldName === field).value
+        })
+        card.back = template.back.replace(re, (match, field) => {
+          if (field === 'FrontSide') {
+            return card.front
+          }
+          return note.fieldData.find(x => x.fieldName === field).value
+        })
+        return card
+      })
     }
   },
   head () {
@@ -120,7 +163,10 @@ export default {
 
 <style lang="scss" scoped>
 .actions {
-  .btn {
+  display: flex;
+  justify-content: flex-end;
+
+  .btn-primary, .btn-outline-primary {
     margin-left: 0.5em;
   }
 }

@@ -1,63 +1,63 @@
 <template>
-  <div class="container">
-    <div class="row">
-      <div class="col">
-        <nuxt-link to="/note-types/create" class="btn btn-primary float-right">
-          Create Note Type
-        </nuxt-link>
+  <BaseLoad :loaded="loaded">
+    <div class="container">
+      <div class="row mb-2">
+        <div class="col">
+          <div class="actions">
+            <nuxt-link :to="{ name: 'note-types-create' }" class="btn btn-outline-primary">
+              Create Note Type
+            </nuxt-link>
+          </div>
+        </div>
       </div>
+
+      <b-table v-if="noteTypes.length > 0" :fields="fields" :items="noteTypes" hover @row-clicked="navigate">
+        <template v-slot:cell(fields)="data">
+          {{ data.value.map(field => field.name).join(', ') }}
+        </template>
+
+        <template v-slot:cell(templates)="data">
+          {{ data.value.length }}
+        </template>
+      </b-table>
     </div>
-
-    <b-table :fields="fields" :items="noteTypes" hover borderless>
-      <template v-slot:cell(fields)="data">
-        {{ data.value.join(', ') }}
-      </template>
-
-      <template v-slot:cell(templates)="data">
-        {{ data.value.length }}
-      </template>
-    </b-table>
-  </div>
+  </BaseLoad>
 </template>
 
 <script>
 export default {
   data: () => ({
+    loaded: false,
+    noteTypes: [],
     fields: [
       'name',
       'fields',
       'templates'
-    ],
-    noteTypes: [
-      {
-        name: 'Basic',
-        fields: ['Front', 'Back'],
-        templates: [
-          {
-            front: '{{Front}}',
-            back: '{{FrontSide}}<hr>{{Back}}'
-          }
-        ]
-      },
-      {
-        name: 'Basic (and reversed)',
-        fields: ['Front', 'Back'],
-        templates: [
-          {
-            front: '{{Front}}',
-            back: '{{FrontSide}}<hr>{{Back}}'
-          },
-          {
-            front: '{{Back}}',
-            back: '{{FrontSide}}<hr>{{Front}}'
-          }
-        ]
-      }
     ]
-  })
+  }),
+  async created () {
+    try {
+      this.noteTypes = await this.$api.get('/note-types')
+    } catch (error) {
+      this.error = error
+    }
+
+    this.loaded = true
+  },
+  methods: {
+    navigate (item, index, event) {
+      this.$router.push({ name: 'note-types-id', params: { id: item.id } })
+    }
+  },
+  head: {
+    title: 'Note Types'
+  }
 }
 </script>
 
-<style>
-
+<style lang="scss" scoped>
+.actions {
+  display: flex;
+  justify-content: flex-end;
+}
 </style>

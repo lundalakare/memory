@@ -1,5 +1,8 @@
 <template>
   <BaseLoad :loaded="loaded">
+    <CreateDeckModal @created="createDeck($event)" />
+    <StudyModal />
+
     <div class="container">
       <div class="row mb-2">
         <div class="col actions">
@@ -13,16 +16,7 @@
         </div>
       </div>
 
-      <CreateDeckModal @created="decks.push($event)" />
-      <StudyModal />
-
-      <b-table :items="decks" :fields="fields" hover>
-        <template v-slot:cell(name)="data">
-          <nuxt-link :to="{ name: 'decks-id', params: { id: data.item.id } }">
-            {{ data.value }}
-          </nuxt-link>
-        </template>
-      </b-table>
+      <b-table :items="decks" :fields="fields" hover @row-clicked="navigate" />
     </div>
   </BaseLoad>
 </template>
@@ -40,6 +34,7 @@ export default {
   data: () => ({
     loaded: false,
     error: null,
+    loading: false,
     decks: [],
     fields: [
       { key: 'name', label: 'Deck', sortable: true }
@@ -53,6 +48,26 @@ export default {
     }
 
     this.loaded = true
+  },
+  methods: {
+    async createDeck (data) {
+      this.loading = true
+
+      try {
+        const deck = await this.$api.post('/decks', {
+          name: data.name
+        })
+
+        this.decks.push(deck)
+      } catch (error) {
+        this.error = error
+      }
+
+      this.loading = false
+    },
+    navigate (item, index, event) {
+      this.$router.push({ name: 'decks-id', params: { id: item.id } })
+    }
   },
   head: {
     title: 'Decks'

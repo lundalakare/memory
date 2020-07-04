@@ -58,8 +58,14 @@ export const getDeck = wrapAsync(async function getDeck(req: Request, res: Respo
     },
     include: {
       notes: {
-        select: {
-          type: true,
+        include: {
+          type: {
+            include: {
+              fields: true,
+              templates: true
+            }
+          },
+          fieldData: true,
           cards: true
         }
       }

@@ -1,203 +1,94 @@
 <template>
   <div class="container">
-    <h4>Create Note Type</h4>
-
-    <div class="form-group">
-      <label for="name">Name</label>
-
-      <input id="name" v-model="name" type="text" class="form-control">
+    <div v-if="error" class="alert alert-danger">
+      {{ error }}
     </div>
 
-    <div class="card mb-3">
-      <div class="card-body">
-        <div class="row mb-3">
-          <div class="col">
-            <h5>Fields ({{ fields.length }})</h5>
-          </div>
+    <h3>Create Note Type</h3>
 
-          <div class="col">
-            <div class="input-group">
-              <input v-model="newFieldName" type="text" class="form-control" placeholder="Field Name">
+    <NoteTypeForm :note-type="noteType" />
 
-              <div class="input-group-append">
-                <button class="btn btn-outline-primary" type="button" :disabled="!newFieldName" @click="addField">
-                  Add
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+    <hr>
 
-        <b-table :fields="tableFields" :items="fields" hover>
-          <template v-slot:cell(index)="data">
-            {{ data.index }}
-          </template>
-
-          <template v-slot:cell(actions)="data">
-            <button class="btn btn-link btn-sm" @click="deleteField(data.index)">
-              <b-icon-trash />
-            </button>
-
-            <button v-if="data.index > 0" class="btn btn-link btn-sm" @click="decrementIndex(data.index)">
-              <b-icon-caret-up />
-            </button>
-          </template>
-        </b-table>
-      </div>
+    <div class="clearfix mb-3">
+      <button class="btn btn-primary float-right" @click="create">
+        Create Note Type
+      </button>
     </div>
-
-    <div class="card mb-3">
-      <div class="card-body">
-        <div class="row mb-3">
-          <div class="col">
-            <h5>Templates ({{ templates.length }})</h5>
-          </div>
-
-          <div class="col">
-            <button v-b-modal.create-template-modal class="btn btn-outline-primary float-right">
-              Create
-            </button>
-          </div>
-        </div>
-
-        <CreateTemplateModal @created="templates.push($event)" />
-
-        <div class="d-flex">
-          <div class="form-group flex-grow-1">
-            <v-select v-model="selectedTemplate" :options="templates" label="name" placeholder="Template" />
-          </div>
-
-          <div v-if="selectedTemplate">
-            <button class="btn btn-link" @click="deleteSelectedTemplate">
-              <b-icon-trash />
-            </button>
-          </div>
-        </div>
-
-        <div v-if="selectedTemplate" class="row">
-          <div class="col">
-            <div class="form-group">
-              <label for="name">Name</label>
-
-              <input id="name" v-model="selectedTemplate.name" type="text" class="form-control">
-            </div>
-
-            <div class="form-group">
-              <label for="front-side">Front Side</label>
-
-              <textarea id="front-side" v-model="selectedTemplate.frontSide" class="form-control" rows="5" />
-            </div>
-
-            <div class="form-group">
-              <label for="back-side">Back Side</label>
-
-              <textarea id="back-side" v-model="selectedTemplate.backSide" class="form-control" rows="5" />
-            </div>
-          </div>
-
-          <div id="preview" class="col">
-            <label>Preview (click to flip)</label>
-
-            <div class="card" @click="previewFrontSide = !previewFrontSide">
-              <div v-if="previewFrontSide">
-                <div class="card-header">
-                  Front Side
-                </div>
-
-                <div class="card-body" v-html="selectedTemplate.frontSide" />
-              </div>
-
-              <div v-else>
-                <div class="card-header">
-                  Back Side
-                </div>
-
-                <div class="card-body" v-html="selectedTemplate.backSide" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <button class="btn btn-success">
-      Create Note Type
-    </button>
   </div>
 </template>
 
 <script>
-import CreateTemplateModal from '~/components/CreateTemplateModal'
+import NoteTypeForm from '~/components/NoteTypeForm'
 
 export default {
   components: {
-    CreateTemplateModal
+    NoteTypeForm
   },
   data: () => ({
-    name: '',
-    tableFields: [
-      'index',
-      'name',
-      { key: 'actions', label: '' }
-    ],
-    fields: [
-      {
-        name: 'Front'
-      },
-      {
-        name: 'Back'
-      }
-    ],
-    newFieldName: '',
-    templates: [
-      {
-        name: 'Front -> Back',
-        frontSide: '{{Front}}',
-        backSide: '{{FrontSide}}<hr>{{Back}}'
-      },
-      {
-        name: 'Back -> Front',
-        frontSide: '{{Back}}',
-        backSide: '{{FrontSide}}<hr>{{Front}}'
-      }
-    ],
-    selectedTemplate: null,
-    previewFrontSide: true
+    noteType: {
+      name: '',
+      fields: [],
+      templates: []
+    },
+    error: null
   }),
   methods: {
-    addField () {
-      this.fields.push({
-        name: this.newFieldName
-      })
+    templateName (template) {
+      const index = this.noteType.templates.indexOf(template)
+      const re = new RegExp('{{(.*?)}}', 'gm')
 
-      this.newFieldName = ''
+      const frontFields = []
+      const backFields = []
+
+      for (const match of template.front.matchAll(re)) {
+        const field = match[1]
+        if (this.noteType.fields.map(field => field.name).includes(field)) {
+          frontFields.push(match[1])
+        }
+      }
+
+      for (const match of template.back.matchAll(re)) {
+        const field = match[1]
+        if (this.noteType.fields.map(field => field.name).includes(field)) {
+          backFields.push(match[1])
+        }
+      }
+
+      if (frontFields.length > 0 && backFields.length > 0) {
+        return `Card ${index + 1}: ${frontFields.join(' + ')} → ${backFields.join(' + ')}`
+      }
+
+      return `Card ${index + 1}`
     },
-    deleteField (index) {
-      this.fields.splice(index, 1)
-    },
-    decrementIndex (index) {
-      this.fields.splice(index - 1, 0, this.fields.splice(index, 1)[0])
-    },
-    deleteSelectedTemplate () {
-      const index = this.templates.indexOf(this.selectedTemplate)
-      this.templates.splice(index, 1)
-      this.selectedTemplate = null
+    async create () {
+      this.error = null
+
+      try {
+        const noteType = {
+          name: this.noteType.name,
+          fields: this.noteType.fields.map((field, i) => ({
+            index: i,
+            name: field.name
+          })),
+          templates: this.noteType.templates.map(template => ({
+            name: this.templateName(template),
+            front: template.front,
+            back: template.back
+          }))
+        }
+
+        await this.$api.post('/note-types', noteType)
+
+        this.$router.push({ name: 'note-types' })
+      } catch (error) {
+        this.error = error
+      }
     }
   }
 }
 </script>
 
-<style lang="scss" scoped>
-.table {
-  .btn-sm {
-    padding: 0;
-  }
-}
+<style>
 
-#preview {
-  .card {
-    margin-bottom: 1em;
-    cursor: pointer;
-  }
-}
 </style>
